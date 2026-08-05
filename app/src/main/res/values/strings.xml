@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">NFCHECK</string>
+    <string-array name="grupos_array">
+        <item>RBM11</item>
+        <item>RBM21</item>
+        <item>RBM31</item>
+    </string-array>
+</resources>
+

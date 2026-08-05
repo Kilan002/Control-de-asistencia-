@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4F6F9">
+
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#1E40AF">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            <TextView
+                android:id="@+id/txtAdminNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="Bienvenido Admin"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Panel de Administración"
+                android:textColor="#BFDBFE"
+                android:textSize="13sp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Gestión de usuarios (nuevo botón) -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Gestión de usuarios"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="16dp"/>
+                    <!-- ✅ Botón nuevo que abre GestionActivity -->
+                    <Button
+                        android:id="@+id/btnGestion"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="🔍  Buscar alumno o profesor"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#2563EB"
+                        android:layout_marginBottom="10dp"
+                        app:cornerRadius="12dp"/>
+                    <Button
+                        android:id="@+id/btnCrearProfesor"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="👨‍🏫  Crear Profesor"
+                        android:textColor="#2563EB"
+                        android:backgroundTint="#EFF6FF"
+                        android:layout_marginBottom="10dp"
+                        app:cornerRadius="12dp"/>
+                    <Button
+                        android:id="@+id/btnCrearAlumno"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="👨‍🎓  Crear Alumno"
+                        android:textColor="#2563EB"
+                        android:backgroundTint="#EFF6FF"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Horarios -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Horarios"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="16dp"/>
+                    <Button
+                        android:id="@+id/btnConfigurarHorarios"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="🗓️  Configurar horarios de profesores"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#7C3AED"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Asistencias -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Asistencias"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="16dp"/>
+                    <Button
+                        android:id="@+id/btnTomarAsistencia"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="📡  Tomar asistencia"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#2563EB"
+                        android:layout_marginBottom="10dp"
+                        app:cornerRadius="12dp"/>
+                    <Button
+                        android:id="@+id/btnConsultarAsistencias"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="📋  Consultar asistencias"
+                        android:textColor="#2563EB"
+                        android:backgroundTint="#EFF6FF"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="86dp"
+                android:src="@drawable/toro"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnCerrarSesion"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Cerrar sesión"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:backgroundTint="#DC2626"
+        android:layout_margin="16dp"
+        app:cornerRadius="14dp"/>
+
+</LinearLayout>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4F6F9">
+
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#2563EB">
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="300dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/toro" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Escaneo NFC"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="4dp"/>
+            <TextView
+                android:id="@+id/txtContextoNFC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Grupo · Materia"
+                android:textSize="13sp"
+                android:textColor="#BFDBFE"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Zona NFC central -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <!-- ✅ Círculo grande — muestra ícono NFC en espera, foto del alumno al escanear -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardAlumnoDetectado"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_marginBottom="28dp"
+            app:cardCornerRadius="110dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#EFF6FF">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Estado en espera: ícono NFC -->
+                <LinearLayout
+                    android:id="@+id/layoutEsperando"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:src="@drawable/ic_nfc"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NFC"
+                        android:textSize="14sp"
+                        android:textColor="#2563EB"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.15"/>
+                </LinearLayout>
+
+                <!-- Foto del alumno detectado — oculta hasta que se escanee -->
+                <LinearLayout
+                    android:id="@+id/layoutFotoAlumno"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/imgAlumnoScanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_person_placeholder"
+                        android:scaleType="centerCrop"/>
+                </LinearLayout>
+
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Nombre del alumno — visible solo al detectar -->
+        <TextView
+            android:id="@+id/txtNombreAlumnoScanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A2E"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <!-- Estado -->
+        <TextView
+            android:id="@+id/textEstadoNFC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Acerca la tarjeta NFC del alumno"
+            android:textSize="16sp"
+            android:textColor="#374151"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.5"/>
+
+    </LinearLayout>
+
+</LinearLayout>

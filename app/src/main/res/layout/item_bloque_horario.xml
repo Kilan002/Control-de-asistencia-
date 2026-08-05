@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="#F8FAFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Día + eliminar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="Día"
+                android:textSize="12sp"
+                android:textColor="#6B7280"/>
+
+            <Spinner
+                android:id="@+id/spinnerDia"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_bg_outlined"
+                android:paddingStart="8dp"/>
+
+            <Button
+                android:id="@+id/btnEliminarBloque"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="✕"
+                android:textSize="13sp"
+                android:textColor="#DC2626"
+                android:backgroundTint="#FEE2E2"
+                android:layout_marginStart="8dp"
+                android:padding="0dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                app:cornerRadius="8dp"/>
+        </LinearLayout>
+
+        <!-- Materia (spinner con materias del profesor) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:text="Materia"
+                android:textSize="12sp"
+                android:textColor="#6B7280"/>
+
+            <Spinner
+                android:id="@+id/spinnerMateriaBloque"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_bg_outlined"
+                android:paddingStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Grupo (spinner con grupos del profesor) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:text="Grupo"
+                android:textSize="12sp"
+                android:textColor="#6B7280"/>
+
+            <Spinner
+                android:id="@+id/spinnerGrupoBloque"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_bg_outlined"
+                android:paddingStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Horas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="De"
+                android:textSize="12sp"
+                android:textColor="#6B7280"/>
+
+            <Spinner
+                android:id="@+id/spinnerHoraInicio"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_bg_outlined"
+                android:paddingStart="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  a  "
+                android:textSize="13sp"
+                android:textColor="#6B7280"/>
+
+            <Spinner
+                android:id="@+id/spinnerHoraFin"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_bg_outlined"
+                android:paddingStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

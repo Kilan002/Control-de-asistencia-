@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F6F9">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#1E40AF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="20dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/imgFotoAlumno"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/ic_person_placeholder"
+
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/circle_bg_gray"
+                    android:layout_marginEnd="16dp"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/textNombre"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/textMatricula"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Matrícula: --"
+                        android:textSize="13sp"
+                        android:textColor="#BFDBFE"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Spinner de materia -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Filtrar por materia"
+                    android:textSize="11sp"
+                    android:textColor="#6B7280"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.08"
+                    android:layout_marginBottom="6dp"/>
+                <Spinner
+                    android:id="@+id/spinnerMateriaDetalle"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:background="@drawable/spinner_bg_outlined"
+                    android:paddingStart="12dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Stats -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center"
+                        android:background="@drawable/stat_card_green" android:padding="10dp" android:layout_marginEnd="6dp">
+                        <TextView android:id="@+id/textTotalAsistencias" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0" android:textSize="22sp"
+                            android:textStyle="bold" android:textColor="#16A34A"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Asist." android:textSize="11sp" android:textColor="#16A34A"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center"
+                        android:background="@drawable/stat_card_yellow" android:padding="10dp" android:layout_marginEnd="6dp">
+                        <TextView android:id="@+id/textTotalRetardos" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0" android:textSize="22sp"
+                            android:textStyle="bold" android:textColor="#D97706"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Retard." android:textSize="11sp" android:textColor="#D97706"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center"
+                        android:background="@drawable/stat_card_red" android:padding="10dp">
+                        <TextView android:id="@+id/textTotalFaltas" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:text="0" android:textSize="22sp"
+                            android:textStyle="bold" android:textColor="#DC2626"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Faltas" android:textSize="11sp" android:textColor="#DC2626"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textPorcentaje"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Asistencia general: --%"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A2E"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Historial"
+            android:textSize="12sp"
+            android:textColor="#6B7280"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08"
+            android:paddingStart="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/txtSinRegistros"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sin registros para esta materia"
+            android:textSize="14sp"
+            android:textColor="#6B7280"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewAsistencias"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:src="@drawable/toro" />
+    </LinearLayout>
+
+    <!-- ✅ Solo queda el FAB de editar alumno — foto se gestiona desde EditarAlumnoActivity -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabEditarAlumno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/ic_edit"
+        android:visibility="gone"
+        app:backgroundTint="#1E40AF"
+        app:tint="#FFFFFF"
+        app:fabSize="normal"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

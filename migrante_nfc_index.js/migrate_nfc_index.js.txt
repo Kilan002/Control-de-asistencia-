@@ -1,0 +1,122 @@
+/**
+ * Script de migración NFC — NFCheck
+ * ===================================
+ * Pobla /nfc_index/{nfcId} → { matricula, grupo } para todos los alumnos
+ * que ya existen en /alumnos antes de que se implementara el índice.
+ *
+ * EJECUTAR UNA SOLA VEZ desde tu máquina con acceso admin.
+ *
+ * SETUP:
+ *   1. Ve a Firebase Console → Configuración del proyecto → Cuentas de servicio
+ *   2. Haz clic en "Generar nueva clave privada" → descarga el JSON
+ *   3. Guarda ese archivo como "serviceAccountKey.json" en la misma carpeta que este script
+ *   4. npm install firebase-admin
+ *   5. node migrate_nfc_index.js
+ *
+ * El script es SEGURO para ejecutar múltiples veces (idempotente):
+ * - Si el nfcId ya está en /nfc_index, lo sobreescribe con los mismos datos
+ * - No borra ni modifica ningún dato existente de /alumnos
+ * - Reporta cada alumno procesado en consola
+ */
+
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://nfccheck-39c84-default-rtdb.firebaseio.com"
+  // ↑ Reemplaza con tu URL real de Realtime Database
+  // La encuentras en Firebase Console → Realtime Database
+});
+
+const db = admin.database();
+
+async function migrarIndiceNFC() {
+  console.log("═══════════════════════════════════════");
+  console.log("  Migración /nfc_index — NFCheck");
+  console.log("═══════════════════════════════════════\n");
+
+  // Leer todos los grupos y alumnos
+  const alumnosSnap = await db.ref("alumnos").once("value");
+
+  if (!alumnosSnap.exists()) {
+    console.log("⚠️  No se encontraron datos en /alumnos. Nada que migrar.");
+    process.exit(0);
+  }
+
+  const updates = {};
+  let totalAlumnos = 0;
+  let sinNFC       = 0;
+  let duplicados   = [];
+  const nfcVistos  = new Map(); // nfcId → "grupo/matricula" para detectar duplicados
+
+  alumnosSnap.forEach((grupoSnap) => {
+    const grupo = grupoSnap.key;
+
+    grupoSnap.forEach((alumnoSnap) => {
+      const matricula = alumnoSnap.key;
+      const nfcId     = alumnoSnap.child("nfcId").val();
+      const nombre    = alumnoSnap.child("nombre").val() ?? "(sin nombre)";
+
+      totalAlumnos++;
+
+      if (!nfcId || nfcId.trim() === "") {
+        console.log(`  ⚠️  Sin NFC: ${nombre} (${matricula}) — grupo ${grupo}`);
+        sinNFC++;
+        return; // continúa al siguiente alumno
+      }
+
+      // Detectar NFC duplicado entre alumnos distintos
+      if (nfcVistos.has(nfcId)) {
+        const anterior = nfcVistos.get(nfcId);
+        duplicados.push({ nfcId, actual: `${grupo}/${matricula}`, anterior });
+        console.log(`  ❌ NFC DUPLICADO: ${nfcId}`);
+        console.log(`       Alumno 1: ${anterior}`);
+        console.log(`       Alumno 2: ${grupo}/${matricula} (${nombre})`);
+        return; // no escribe el duplicado, requiere corrección manual
+      }
+
+      nfcVistos.set(nfcId, `${grupo}/${matricula}`);
+      updates[`nfc_index/${nfcId}`] = { matricula, grupo };
+      console.log(`  ✅  ${nombre} | ${matricula} | ${grupo} | ${nfcId}`);
+    });
+  });
+
+  // Resumen antes de escribir
+  console.log("\n───────────────────────────────────────");
+  console.log(`  Total alumnos encontrados : ${totalAlumnos}`);
+  console.log(`  A indexar                 : ${Object.keys(updates).length}`);
+  console.log(`  Sin tarjeta NFC           : ${sinNFC}`);
+  console.log(`  NFC duplicados (omitidos) : ${duplicados.length}`);
+  console.log("───────────────────────────────────────\n");
+
+  if (Object.keys(updates).length === 0) {
+    console.log("⚠️  No hay entradas para escribir. Revisa los avisos anteriores.");
+    process.exit(0);
+  }
+
+  // Escribir todas las entradas en una sola operación atómica
+  console.log("Escribiendo en /nfc_index...");
+  await db.ref().update(updates);
+  console.log("✅  Migración completada correctamente.\n");
+
+  // Mostrar duplicados que necesitan corrección manual
+  if (duplicados.length > 0) {
+    console.log("════ ACCIÓN REQUERIDA — NFC duplicados ════");
+    console.log("Los siguientes alumnos comparten la misma tarjeta NFC.");
+    console.log("Asigna una tarjeta única a cada uno desde la app (EditarAlumno)");
+    console.log("y vuelve a ejecutar este script para indexarlos.\n");
+    duplicados.forEach(d => {
+      console.log(`  NFC: ${d.nfcId}`);
+      console.log(`    → ${d.anterior}`);
+      console.log(`    → ${d.actual}\n`);
+    });
+  }
+
+  process.exit(0);
+}
+
+migrarIndiceNFC().catch((err) => {
+  console.error("❌  Error durante la migración:", err.message);
+  process.exit(1);
+});

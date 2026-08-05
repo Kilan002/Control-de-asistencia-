@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Nombre y botón editar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtNombreProfesorItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre Profesor"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A2E"/>
+
+                <TextView
+                    android:id="@+id/txtCorreoProfesorItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="correo@utcj.edu.mx"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnEditarProfesorItem"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="✏ Editar"
+                android:textSize="12sp"
+                android:textColor="#2563EB"
+                android:backgroundTint="#EFF6FF"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                app:cornerRadius="8dp"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F3F4F6" android:layout_marginBottom="10dp"/>
+
+        <!-- Grupos -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GRUPOS"
+            android:textSize="11sp"
+            android:textColor="#6B7280"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08"
+            android:layout_marginBottom="4dp"/>
+        <TextView
+            android:id="@+id/txtGruposProfesorItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RBM51"
+            android:textSize="13sp"
+            android:textColor="#1A1A2E"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Materias -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MATERIAS"
+            android:textSize="11sp"
+            android:textColor="#6B7280"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08"
+            android:layout_marginBottom="4dp"/>
+        <TextView
+            android:id="@+id/txtMateriasProfesorItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PROYECTO INTEGRADOR II"
+            android:textSize="13sp"
+            android:textColor="#1A1A2E"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Horario -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="HORARIO"
+            android:textSize="11sp"
+            android:textColor="#6B7280"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08"
+            android:layout_marginBottom="4dp"/>
+        <LinearLayout
+            android:id="@+id/layoutHorarioProfesorItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

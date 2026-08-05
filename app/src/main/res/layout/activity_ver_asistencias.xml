@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4F6F9">
+
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#1E40AF">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ver Asistencias"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="4dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Selecciona grupo y materia"
+                android:textSize="13sp"
+                android:textColor="#BFDBFE"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ─── Búsqueda de Grupo ─── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Grupo"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="10dp"/>
+
+                    <!-- Badge grupo seleccionado -->
+                    <TextView
+                        android:id="@+id/txtGrupoSeleccionadoVer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#2563EB"
+                        android:background="@drawable/badge_justificante_bg"
+                        android:paddingStart="12dp" android:paddingEnd="12dp"
+                        android:paddingTop="4dp" android:paddingBottom="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Buscar grupo..."
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="4dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:boxCornerRadiusTopStart="10dp" app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp" app:boxCornerRadiusBottomEnd="10dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBuscarGrupoVer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Lista de grupos — altura fija para ver ~5 items -->
+                    <ListView
+                        android:id="@+id/listViewGruposVer"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:background="#F8FAFF"
+                        android:divider="#E5E7EB"
+                        android:dividerHeight="1dp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ─── Búsqueda de Materia ─── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Materia (opcional)"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/txtMateriaSeleccionadaVer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#7C3AED"
+                        android:background="@drawable/badge_justificante_bg"
+                        android:paddingStart="12dp" android:paddingEnd="12dp"
+                        android:paddingTop="4dp" android:paddingBottom="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Buscar materia..."
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="4dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:boxCornerRadiusTopStart="10dp" app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp" app:boxCornerRadiusBottomEnd="10dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBuscarMateriaVer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ListView
+                        android:id="@+id/listViewMateriasVer"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:background="#F8FAFF"
+                        android:divider="#E5E7EB"
+                        android:dividerHeight="1dp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ProgressBar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"/>
+
+            <!-- Mensaje vacío -->
+            <TextView
+                android:id="@+id/txtVacio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Selecciona un grupo para ver los alumnos"
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+                android:gravity="center"
+                android:paddingTop="24dp"
+                android:visibility="visible"/>
+
+            <!-- Lista de alumnos -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAsistencias"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

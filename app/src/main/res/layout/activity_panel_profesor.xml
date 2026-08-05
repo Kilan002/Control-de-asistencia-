@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4F6F9">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#1E40AF">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:gravity="center_vertical">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/txtTituloPanel" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Panel Profesor" android:textSize="22sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_marginBottom="4dp"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="El horario se detecta automáticamente" android:textSize="13sp" android:textColor="#BFDBFE"/>
+            </LinearLayout>
+            <Button android:id="@+id/btnVerHorario" android:layout_width="wrap_content" android:layout_height="40dp"
+                android:text="🗓 Horario" android:textSize="12sp" android:textColor="#1E40AF" android:backgroundTint="#FFFFFF"
+                style="@style/Widget.MaterialComponents.Button.TextButton" app:cornerRadius="8dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="20dp">
+
+            <!-- Card clase detectada (solo profesor) -->
+            <androidx.cardview.widget.CardView android:id="@+id/cardAutoDetect"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" android:visibility="gone"
+                app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="#EFF6FF">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="🕐" android:textSize="28sp" android:layout_marginEnd="12dp"/>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:id="@+id/txtClaseDetectada" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:text="Clase detectada" android:textSize="14sp" android:textColor="#1E40AF" android:textStyle="bold"/>
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:text="El escáner NFC usará esta clase" android:textSize="12sp" android:textColor="#3B82F6"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card sin clase -->
+            <androidx.cardview.widget.CardView android:id="@+id/cardSinClase"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" android:visibility="gone"
+                app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="#FFF7ED">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="⚠️" android:textSize="24sp" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Sin clase en este horario. Puedes entrar al escáner o usar asistencia manual."
+                        android:textSize="13sp" android:textColor="#92400E"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Spinners legacy ocultos -->
+            <Spinner android:id="@+id/spinnerGrupoProfesor" android:layout_width="match_parent" android:layout_height="0dp" android:visibility="gone"/>
+            <Spinner android:id="@+id/spinnerMateriaProfesor" android:layout_width="match_parent" android:layout_height="0dp" android:visibility="gone"/>
+
+            <!-- ✅ Card buscadores para Admin — oculto para profesor -->
+            <androidx.cardview.widget.CardView android:id="@+id/cardSpinnersAdmin"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" android:visibility="gone"
+                app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="20dp">
+
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Selección (Admin)" android:textSize="13sp" android:textColor="#6B7280"
+                        android:textAllCaps="true" android:letterSpacing="0.08" android:layout_marginBottom="16dp"/>
+
+                    <!-- Buscador Grupo -->
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Grupo" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginBottom="4dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                        <TextView android:id="@+id/txtGrupoAdminSeleccionado"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="14sp" android:textStyle="bold" android:textColor="#2563EB"
+                            android:background="@drawable/badge_justificante_bg"
+                            android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="4dp" android:paddingBottom="4dp"
+                            android:visibility="gone"/>
+                        <Button android:id="@+id/btnLimpiarGrupoAdmin"
+                            android:layout_width="wrap_content" android:layout_height="32dp"
+                            android:text="✕" android:textSize="12sp" android:textColor="#DC2626"
+                            android:backgroundTint="#FEE2E2" android:layout_marginStart="8dp"
+                            android:visibility="gone" style="@style/Widget.MaterialComponents.Button.TextButton" app:cornerRadius="8dp"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:hint="Buscar grupo..." style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="4dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:boxCornerRadiusTopStart="10dp" app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp" app:boxCornerRadiusBottomEnd="10dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBuscarGrupoAdmin"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ListView android:id="@+id/listViewGruposAdmin"
+                        android:layout_width="match_parent" android:layout_height="240dp"
+                        android:background="#F8FAFF" android:divider="#E5E7EB" android:dividerHeight="1dp"
+                        android:visibility="gone" android:layout_marginBottom="16dp"/>
+
+                    <!-- Buscador Materia -->
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Materia" android:textSize="12sp" android:textColor="#6B7280" android:layout_marginBottom="4dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                        <TextView android:id="@+id/txtMateriaAdminSeleccionada"
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:textSize="14sp" android:textStyle="bold" android:textColor="#7C3AED"
+                            android:background="@drawable/badge_justificante_bg"
+                            android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="4dp" android:paddingBottom="4dp"
+                            android:visibility="gone"/>
+                        <Button android:id="@+id/btnLimpiarMateriaAdmin"
+                            android:layout_width="wrap_content" android:layout_height="32dp"
+                            android:text="✕" android:textSize="12sp" android:textColor="#DC2626"
+                            android:backgroundTint="#FEE2E2" android:layout_marginStart="8dp"
+                            android:visibility="gone" style="@style/Widget.MaterialComponents.Button.TextButton" app:cornerRadius="8dp"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:hint="Buscar materia..." style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_marginBottom="4dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:boxCornerRadiusTopStart="10dp" app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp" app:boxCornerRadiusBottomEnd="10dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBuscarMateriaAdmin"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ListView android:id="@+id/listViewMateriasAdmin"
+                        android:layout_width="match_parent" android:layout_height="240dp"
+                        android:background="#F8FAFF" android:divider="#E5E7EB" android:dividerHeight="1dp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Acciones -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="20dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Acciones" android:textSize="13sp" android:textColor="#6B7280"
+                        android:textAllCaps="true" android:letterSpacing="0.08" android:layout_marginBottom="16dp"/>
+                    <Button android:id="@+id/btnEscanearAutomatico" android:layout_width="match_parent" android:layout_height="52dp"
+                        android:text="📡  Escaneo NFC" android:textColor="#FFFFFF" android:textStyle="bold"
+                        android:backgroundTint="#2563EB" android:layout_marginBottom="10dp" app:cornerRadius="12dp"/>
+                    <Button android:id="@+id/btnTomarAsistencia" android:layout_width="match_parent" android:layout_height="52dp"
+                        android:text="✏️  Asistencia manual" android:textColor="#2563EB"
+                        android:backgroundTint="#EFF6FF" android:layout_marginBottom="10dp" app:cornerRadius="12dp"/>
+                    <Button android:id="@+id/btnVerAsistencias" android:layout_width="match_parent" android:layout_height="52dp"
+                        android:text="📋  Ver asistencias" android:textColor="#2563EB"
+                        android:backgroundTint="#EFF6FF" app:cornerRadius="12dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <ImageView android:layout_width="match_parent" android:layout_height="70dp" android:src="@drawable/toro"/>
+
+    <Button android:id="@+id/btnLogout" android:layout_width="match_parent" android:layout_height="52dp"
+        android:text="Cerrar sesión" android:textColor="#FFFFFF" android:textStyle="bold"
+        android:backgroundTint="#DC2626" android:layout_margin="16dp" app:cornerRadius="14dp"/>
+
+</LinearLayout>

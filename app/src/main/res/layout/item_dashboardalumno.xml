@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    item_dashboard_alumno.xml
+    Fila de alumno en el dashboard. Se infla dinámicamente en DashboardProfesorActivity.
+    Estilo consistente con las cards de activity_crear_alumno.xml:
+    - Fondo blanco con separador gris suave
+    - Textos en #1F2937 (principal) y #6B7280 (secundario)
+    - Pesos de columna idénticos al encabezado del activity
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Contenido de la fila -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:gravity="center_vertical">
+
+        <!-- Nombre + matrícula (columna ancha) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.2"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtDashNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre Alumno"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#1F2937"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/txtDashMatricula"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="000000"
+                android:textSize="11sp"
+                android:textColor="#6B7280"
+                android:layout_marginTop="1dp"/>
+        </LinearLayout>
+
+        <!-- Asistencias -->
+        <TextView
+            android:id="@+id/txtDashAsist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:text="✅ 0"
+            android:textSize="12sp"
+            android:textColor="#065F46"
+            android:gravity="center"/>
+
+        <!-- Retardos -->
+        <TextView
+            android:id="@+id/txtDashRet"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:text="⏰ 0"
+            android:textSize="12sp"
+            android:textColor="#92400E"
+            android:gravity="center"/>
+
+        <!-- Faltas -->
+        <TextView
+            android:id="@+id/txtDashFalta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:text="❌ 0"
+            android:textSize="12sp"
+            android:textColor="#991B1B"
+            android:gravity="center"/>
+
+        <!-- Porcentaje -->
+        <TextView
+            android:id="@+id/txtDashPct"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:text="0%"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#1F2937"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <!-- Separador — mismo tono que el divider de los ListView en crear_alumno -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E5E7EB"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"/>
+
+</LinearLayout>
