@@ -1,0 +1,48 @@
+
+
+pagina de registro de profesores y alumnos
+
+
+
+objeticvo
+
+controlar de manera indirecta la presiencia de los profesores en sus clases a travez de registros de los jefes de grupos
+
+llevar un registro por grupo de que clases si se dieron y cuales no
+
+el registro sera llenado por el jefe de grupo en base al horario de grupo.
+
+
+
+caracteristicas:
+
+la base de datos debe poder contener imagenes
+
+debe tener un registro de accesos 
+
+backdoor para administradores para hacer crud directo
+
+diferentes niveles de acceso, aministradores, aministradores sin acceso a edicion(solo lectura), usuarios(alumnos, los cuales solo pueden modificar sus propios registros)
+
+los alumnos pueden modificar sus registros, solo que no les vamos a decir que mantenemos los registros antiguos, no se reescriben solo se añade una version
+
+
+seguridad:
+
+por definir
+
+
+
+estructura:
+
+
+
+checklist
+	
+
+apartado de imagen
+
+seccion de observaciones
+
+
+
