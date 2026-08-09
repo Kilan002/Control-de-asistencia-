@@ -1,0 +1,226 @@
+<!-- Vista unica para Administrador -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar usuario</title>
+</head>
+
+    <!-- ------------------------------------------------------------------------------------ 
+    Se pueden modificar alumnos y profesores, pero no a supervisores ni administradores.
+    Hay campos que solo se muestran para alumnos y otros que solo se muestran para profesores, 
+    igualmente los primeros datos se muestran en ambos, todo de acuerdo al tipo de usuario 
+    seleccionado.
+    ----------------------------------------------------------------------------------------->
+
+<body>
+    <div class="container">
+        <section class="search-card card" aria-labelledby="buscar-title">
+            <h1 id="buscar-title">Buscar usuario</h1>
+            <p>Busca por nombre, matrícula o número de reloj.</p>
+
+            <form class="search-form">
+                <input type="text" placeholder="Ej. María López o 12345" id="buscar-user" class="search-input">
+                <button type="submit" class="search-button">Buscar</button>
+            </form>
+        </section>
+
+        <section class="results" aria-label="Resultados de búsqueda">
+            <!-- Ejemplo de alumno -->
+            <article class="result-card" data-role="alumno">
+                <div>
+                    <h2 id="nombre-user">María López</h2>
+                    <p class="dato" id="no-reloj">Matrícula: 12345</p>
+                    <p class="dato" id="rol">Rol: Alumno</p>
+                    <p class="dato alumno" id="grupo">Grupo: DSMXX</p>
+                </div>
+                <div class="actions">
+                    <button type="button" class="action-button" data-action="edit"
+                        onclick="openEditModal(this)">Editar</button>
+                    <button type="button" class="action-button danger" data-action="delete"
+                        onclick="openDeleteModal()">Eliminar</button>
+                </div>
+            </article>
+
+
+            <!-- Ejemplo de profesor -->
+            <article class="result-card" data-role="profesor">
+                <div>
+                    <h2>Juan Pérez</h2>
+                    <p class="dato">Matrícula: 67890</p>
+                    <p class="dato">Rol: Profesor</p>
+                    <p class="dato profesor">Materia: Redes</p>
+                    <p class="dato profesor">Grupo: DSMYY</p>
+                    <p class="dato profesor">Día: Martes</p>
+                    <p class="dato profesor">Horario: 10:00 - 12:00</p>
+                </div>
+                <div class="actions">
+                    <button type="button" class="action-button" data-action="edit"
+                        onclick="openEditModal(this)">Editar</button>
+                    <button type="button" class="action-button danger" data-action="delete"
+                        onclick="openDeleteModal()">Eliminar</button>
+                </div>
+            </article>
+        </section>
+    </div>
+
+    <div class="modal-overlay" id="delete-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+            <div class="modal-header">
+                <h3 id="delete-title">Confirmar eliminación</h3>
+            </div>
+            <p>¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.</p>
+            <div class="modal-actions">
+                <button type="button" class="secondary-button" data-close="delete">Cancelar</button>
+                <button type="button" class="modal-action" id="confirm-delete">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+            <div class="modal-header">
+                <h3 id="edit-title">Editar usuario</h3>
+                <button type="button" class="secondary-button" data-close="edit"
+                    onclick="closeModalByName('edit')">Cerrar</button>
+            </div>
+            <p class="helper-text" id="edit-helper">Modifica los datos del usuario seleccionado.</p>
+
+            <form class="form-grid" id="edit-form">
+                <div class="field-group">
+                    <label for="edit-nombre">Nombre completo</label>
+                    <input type="text" id="edit-nombre" name="nombre">
+                </div>
+
+                <div class="field-group">
+                    <label for="edit-matricula">Matrícula</label>
+                    <input type="text" id="edit-matricula" name="matricula">
+                </div>
+
+                <div class="field-group">
+                    <label for="edit-password">Contraseña</label>
+                    <input type="password" id="edit-password" name="password">
+                </div>
+
+                <div class="field-group">
+                    <label for="edit-email">Correo electrónico</label>
+                    <input type="email" id="edit-email" name="email">
+                </div>
+
+                <!-- Solo alumnos -->
+                <div class="student-fields" id="student-fields">
+                    <div class="field-group">
+                        <label for="edit-grupo">Grupo</label>
+                        <input type="text" id="edit-grupo" name="grupo">
+                    </div>
+
+                    <div class="field-group">
+                        <label>Foto</label>
+                        <div class="camera-container" id="edit-camera-container">
+                            <video id="video" autoplay playsinline></video>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                            <img class="photo-preview" id="photo-preview" alt="Vista previa de foto">
+                            <input type="hidden" id="foto" name="foto">
+                            <div class="modal-actions" style="justify-content: flex-start; margin-top: 10px;">
+                                <button type="button" class="secondary-button" id="start-camera">Abrir
+                                    cámara</button>
+                                <button type="button" class="secondary-button" id="take-photo">Tomar foto</button>
+                                <button type="button" class="secondary-button" id="retake-photo">Volver a
+                                    tomar</button>
+                            </div>
+                            <p class="helper-text">Usa la cámara para actualizar la foto.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solo profesores -->
+                <div class="teacher-fields" id="teacher-fields" hidden>
+                    <div class="field-group">
+                        <label for="edit-materia">Materia</label>
+                        <select id="edit-materia" name="materia">
+                            <option value="Cálculo">Cálculo</option>
+                            <option value="Redes">Redes</option>
+                            <option value="POO">POO</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="edit-hora-inicio">Hora de inicio</label>
+                        <select id="edit-hora-inicio" name="horaInicio">
+                            <option value="07:00">07:00</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="edit-hora-fin">Hora de fin</label>
+                        <select id="edit-hora-fin" name="horaFin">
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="edit-grupo-profesor">Grupo</label>
+                        <select id="edit-grupo-profesor" name="grupoProfesor">
+                            <option value="DSMXX">DSMXX</option>
+                            <option value="DSMYY">DSMYY</option>
+                            <option value="DSMZZ">DSMZZ</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="edit-dia">Día</label>
+                        <select id="edit-dia" name="dia">
+                            <option value="lunes">Lunes</option>
+                            <option value="martes">Martes</option>
+                            <option value="miercoles">Miércoles</option>
+                            <option value="jueves">Jueves</option>
+                            <option value="viernes">Viernes</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="teacher-classes-header">
+                            <h4>Clases registradas</h4>
+                        </div>
+                        <div id="profesor-clases-guardadas" class="clases-guardadas">
+                            <p class="empty-state">Aún no se han registrado clases.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button type="button" class="secondary-button" id="guardar-clase">Guardar clase</button>
+                        <button type="button" class="secondary-button" id="limpiar-clase">Limpiar selección</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="secondary-button" data-close="edit"
+                        onclick="closeModalByName('edit')">Cancelar</button>
+                    <button type="submit" class="modal-action">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../js/shared/camera.js"></script>
+    <script src="../../js/admin/modify-user.js"></script>
+</body>
+
+</html>

@@ -1,11 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Asistencia</title>
 </head>
+
 <body>
-    <h1>Clases conforme hora</h1>
+
+    <!-- -----------------------------------------------------------------------------------------
+    Se veran las clases del dia conforme la fecha y hora del sistema, 
+    se podra dar click en la clase para ir a la pagina de asistencia del profesor (asistencia.html) 
+    ------------------------------------------------------------------------------------------ -->
+
+
+    <div class="page-shell">
+        <header class="header-panel">
+            <p class="bienvenida">Lunes 8 de agosto</p>
+            <p class="subtitulo">Clases programadas para hoy</p>
+        </header>
+
+        <main class="schedule-grid">
+            <article class="clase-card">
+                <a href="asistencia.html">
+                    <p class="materia">Programación</p>
+                    <p class="profesor">Profesor: Ana García</p>
+                    <p class="horario">3:00 - 4:00</p>
+                </a>
+            </article>
+
+            <article class="clase-card">
+                <a href="asistencia.html">
+                    <p class="materia">Programación</p>
+                    <p class="profesor">Profesor: Ana García</p>
+                    <p class="horario">3:00 - 4:00</p>
+                </a>
+            </article>
+
+        </main>
+    </div>
 </body>
+
 </html>

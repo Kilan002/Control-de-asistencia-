@@ -1,11 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencia</title>
 </head>
+
 <body>
-    checklist
+
+    <!-- Se optiene la informacion del profesor y se toma la asistencia del profesor -->
+
+    <div class="content">
+        <div class="info-prof">
+            <p class="nombre-prof" id="nombre-prof">Nombre del profesor</p>
+            <p class="materia" id="materia">Materia <span>12:00 - 13:00</span></p>
+        </div>
+
+        <form action="" method="post">
+            <fieldset class="options" aria-label="Estado de asistencia">
+                <label class="option" for="asistio">
+                    <input type="radio" name="asistencia" id="asistio" value="asistio">
+                    <span>Asistió</span>
+                </label>
+                <label class="option" for="justificado">
+                    <input type="radio" name="asistencia" id="justificado" value="justificado">
+                    <span>Justificado</span>
+                </label>
+                <label class="option" for="falto">
+                    <input type="radio" name="asistencia" id="falto" value="falto">
+                    <span>Faltó</span>
+                </label>
+            </fieldset>
+
+            <textarea name="comentario" id="comentario" placeholder="Comentario"></textarea>
+
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
 </body>
+
 </html>

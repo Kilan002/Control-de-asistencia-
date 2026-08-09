@@ -1,16 +1,126 @@
+<!-- Vita para Administrador y Supervisor (Peinado) -->
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horario</title>
 </head>
+
+    <!-- -------------------------------------------------- 
+    Los profes pueden ver solo SU horario con ID de No. Reloj
+    nombre de jefe de grupo y comentarios sino asistio.
+    Los administrativos pueden ver el horario de cada profe 
+    ------------------------------------------------------>
+
 <body>
-    Horario por semana
+    <main class="page-horario">
+        <header class="page-header">
+            <h1>Asistencia Nombre-Profe</h1>
+        </header>
+
+        <section class="vista-horario" aria-labelledby="horario-title">
+            <div class="selector-semana">
+                <label for="select-semana">Seleccionar semana</label>
+                <select name="select-semana" id="select-semana">
+                    <option value="">Semana 1</option>
+                    <option value="">Semana 2</option>
+                    <option value="">Semana 3</option>
+                </select>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-primary">
+                    <thead>
+                        <tr>
+                            <th class="col">Hora</th>
+                            <th class="col">Lunes</th>
+                            <th class="col">Martes</th>
+                            <th class="col">Miércoles</th>
+                            <th class="col">Jueves</th>
+                            <th class="col">Viernes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="horario-body">
+                        <tr>
+                            <th scope="row">7:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">8:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">9:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">10:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">11:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">12:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">13:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">14:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">13:00</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 </body>
+
 </html>
-
-
-
-Solo profes pueden ver SU horario con ID de No. Reloj
-nombre de jefe de grupo y comentarios sino asistio

@@ -1,11 +1,46 @@
+<!-- Vita para Administrador y Supervisor (Peinado) -->
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index</title>
+    <title>Inicio</title>
 </head>
+
 <body>
-    Profes
+    <main class="page">
+        <section class="search-card" aria-labelledby="buscar-title">
+            <h1 id="buscar-title">Buscar profesor</h1>
+            <p>Busca por nombre, número de reloj o clase que imparte.</p>
+
+            <form class="search-form">
+                <input type="text" placeholder="Ej. Maria Lopez o 12345" id="buscar-prof" class="search-input">
+                <button type="submit" class="search-button">Buscar</button>
+            </form>
+        </section>
+
+        <section class="results" aria-label="Resultados de búsqueda">
+            <article class="result-card">
+                <div>
+                    <h2 id="nombre-prof">Nombre del profesor</h2>
+                    <p class="dato" id="no-reloj">Número de reloj: 12345</p>
+                    <p class="dato" id="clases">Clases: Calculo, Redes</p>
+                </div>
+                <button type="button" class="action-button" id="ver-horario">Ver horario</button>
+            </article>
+        </section>
+
+        <div class="admin-oculto">
+            <div class="nuevo-usuario">
+                <a href="NewUser.html" >Agregar usuario</a>
+            </div>
+            <div class="modificar-usuario">
+                <a href="modificar.html" >Modificar usuario</a>
+            </div>
+        </div>
+    </main>
 </body>
+
 </html>

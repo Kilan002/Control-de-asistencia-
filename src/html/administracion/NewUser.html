@@ -1,0 +1,146 @@
+<!-- Vista unica para Administrador -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar usuario</title>
+</head>
+
+    <!-------------------------------------------------------------------------------- 
+    Son distintos datos a rellenar de acuerdo al tipo de usuario,
+    solo se pueden agregar Alumnos y profesores, Ni supervisores Ni administradores
+    --------------------------------------------------------------------------------->
+
+<body>
+    <main class="page-shell">
+        <section class="card" aria-labelledby="form-title">
+            <div class="card-header">
+                <div>
+                    <h2 id="form-title">Agregar alumno</h2>
+                    <p class="helper-text" id="mode-helper">Completa los datos para registrar a un alumno.</p>
+                </div>
+                <button type="button" class="toggle-button" id="cambiar-usuario">Añadir profesor</button>
+            </div>
+
+            <form action="" method="post">
+                <div class="form-grid">
+                    <div class="field-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej. Juan Pérez" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input type="email" id="correo" name="correo" placeholder="Ej. juan.perez@ejemplo.com" required>
+                    </div>
+
+                    <div class="mode-panel student-fields">
+                        <div class="field-group">
+                            <label for="grupo-alumno">Grupo</label>
+                            <input type="text" id="grupo-alumno" name="grupo" placeholder="Ej. DSMXX" required>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="foto">Fotografía</label>
+                            <div class="camera-container" id="camera-container">
+                                <video id="video" autoplay playsinline></video>
+                                <canvas id="canvas" style="display:none;"></canvas>
+                                <img id="photo-preview" alt="Foto capturada" />
+                                <input type="hidden" id="foto" name="foto">
+                                <div class="camera-actions">
+                                    <button type="button" class="camera-button" id="start-camera">Abrir cámara</button>
+                                    <button type="button" class="camera-button" id="take-photo">Tomar foto</button>
+                                    <button type="button" class="camera-button" id="retake-photo">Volver a
+                                        tomar</button>
+                                </div>
+                                <p class="note">Usa la cámara para tomarte una foto.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mode-panel teacher-fields" hidden>
+                        <div class="clases-guardadas" id="clases-guardadas"></div>
+
+                        <div class="field-group">
+                            <label for="materia">Materia</label>
+                            <select id="materia" name="materia">
+                                <option value="Cálculo">Cálculo</option>
+                                <option value="Redes">Redes</option>
+                                <option value="POO">POO</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="hora-inicio">Hora de inicio</label>
+                            <select id="hora-inicio" name="hora-inicio">
+                                <option value="07:00">07:00</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="hora-fin">Hora de fin</label>
+                            <select id="hora-fin" name="hora-fin">
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="grupo-profesor">Grupo</label>
+                            <select id="grupo-profesor" name="grupo-profesor">
+                                <option value="DSMXX">DSMXX</option>
+                                <option value="DSMYY">DSMYY</option>
+                                <option value="DSMZZ">DSMZZ</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="dia">Día</label>
+                            <select id="dia" name="dia">
+                                <option value="lunes">Lunes</option>
+                                <option value="martes">Martes</option>
+                                <option value="miercoles">Miércoles</option>
+                                <option value="jueves">Jueves</option>
+                                <option value="viernes">Viernes</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <button type="button" class="camera-button" id="agregar-clase">Agregar clase</button>
+                        </div>
+
+                        <input type="hidden" id="clases-json" name="clases" value="[]">
+                    </div>
+
+                    <button type="submit" class="submit-button">Guardar</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="../../js/shared/camera.js"></script>
+    <script src="../../js/admin/new-user.js"></script>
+</body>
+
+</html>
