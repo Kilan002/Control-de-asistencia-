@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bitácora · Control de clases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --ink:#16233F;
+    --ink-2:#26375C;
+    --bg:#F4F4F2;
+    --surface:#FFFFFF;
+    --line:#DDDDD6;
+    --text:#1D1D1B;
+    --text-soft:#6B6B62;
+    --green:#3F6B4E;
+    --amber:#B3791E;
+    --red:#A63A2E;
+    --radius:8px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+    --font-body:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background:var(--bg);
+    font-family:var(--font-body);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  .device{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  /* ---- header flat sticky para que no se mueva---- */
+  header.masthead{
+    background:var(--ink);
+    color:#fff;
+    padding:18px 20px 20px;
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  header.masthead .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#9FB0CE;
+    margin:0 0 4px;
+  }
+  header.masthead h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+  }
+  header.masthead p.sub{
+    font-size:12.5px;
+    color:#B7C2D8;
+    margin:5px 0 0;
+  }
+  .user-chip{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:11.5px; color:#B7C2D8;
+    margin-top:12px;
+  }
+  .user-chip .dot{width:6px; height:6px; background:#7FA98E;}
+  .logout-link{
+    margin-left:auto; color:#B7C2D8; text-decoration:underline; cursor:pointer;
+  }
+
+  main{flex:1; padding:20px 18px 96px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+  }
+  .card + .card{margin-top:14px;}
+  .card-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--text-soft);
+    margin:0 0 14px;
+  }
+
+  label{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--text-soft);
+    margin:14px 0 6px;
+  }
+  label.req::after{content:" *"; color:var(--red);}
+  label:first-of-type{margin-top:0;}
+  input[type=text], input[type=password], input[type=time], select, textarea{
+    width:100%;
+    font-family:var(--font-body);
+    font-size:15px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+    color:var(--text);
+    outline:none;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--ink-2);}
+  textarea{resize:vertical; min-height:64px;}
+  .hint{font-family:var(--font-mono); font-size:11px; color:var(--text-soft); margin-top:6px;}
+
+  button, .btn{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:14.5px;
+    border:none;
+    border-radius:var(--radius);
+    padding:13px 16px;
+    cursor:pointer;
+    width:100%;
+  }
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-ghost{background:var(--surface); color:var(--ink); border:1px solid var(--line);}
+  .btn-danger{background:var(--surface); color:var(--red); border:1px solid var(--red);}
+  .btn-block-group{display:flex; flex-direction:column; gap:10px; margin-top:16px;}
+  .btn-row{display:flex; gap:10px; margin-top:16px;}
+  .btn-row > button{flex:1;}
+
+  .home-tile{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    margin-bottom:10px;
+  }
+  .home-tile .icon{
+    width:36px; height:36px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; flex-shrink:0;
+    background:var(--bg); color:var(--ink);
+  }
+  .home-tile h3{margin:0 0 2px; font-family:var(--font-display); font-size:15px;}
+  .home-tile p{margin:0; font-size:12.5px; color:var(--text-soft);}
+
+  /* ---- segmented control ---- */
+  .segmented{display:flex; gap:8px; margin-top:4px;}
+  .segmented button{
+    flex:1; padding:10px 6px; font-size:12.5px;
+    background:var(--surface); color:var(--text); border:1px solid var(--line);
+  }
+  .segmented button.active[data-val="normal"]{background:var(--green); border-color:var(--green); color:#fff;}
+  .segmented button.active[data-val="retardo"]{background:var(--amber); border-color:var(--amber); color:#fff;}
+  .segmented button.active[data-val="falta"]{background:var(--red); border-color:var(--red); color:#fff;}
+
+  .row-2{display:flex; gap:12px;}
+  .row-2 > div{flex:1;}
+
+  .evidence-box{
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    text-align:center;
+    color:var(--text-soft);
+    font-size:13px;
+    cursor:pointer;
+    position:relative;
+  }
+  .evidence-box.required-missing{border-color:var(--red); color:var(--red);}
+  .evidence-box input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .thumbs{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+  .thumbs img{width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid var(--line);}
+
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:12px; color:var(--ink-2);
+    background:none; border:none; padding:0; margin-bottom:14px; cursor:pointer; width:auto;
+  }
+
+  .banner{
+    border-radius:var(--radius);
+    padding:12px 14px;
+    font-size:13px;
+    margin-bottom:14px;
+    display:none;
+  }
+  .banner.show{display:block;}
+  .banner-error{background:#F7E9E6; color:var(--red); border:1px solid #E3B9AF;}
+  .banner-success{background:#E8F0EA; color:var(--green); border:1px solid #B9D3C2;}
+
+  .role-badge{
+    font-family:var(--font-mono); font-size:10px; text-transform:uppercase;
+    padding:2px 7px; border-radius:4px; letter-spacing:.04em;
+  }
+  .role-badge.alumno{background:#E7EAF2; color:var(--ink-2);}
+  .role-badge.admin{background:#F4EAD6; color:var(--amber);}
+  .role-badge.admin_lectura{background:#EFEFEC; color:var(--text-soft);}
+
+  .list-row{
+    padding:12px 0; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    cursor:pointer;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row .meta{font-size:12px; color:var(--text-soft); margin-top:2px;}
+
+  footer.nav{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:430px;
+    background:var(--surface);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:6px 4px calc(env(safe-area-inset-bottom, 6px) + 6px);
+  }
+  footer.nav button{
+    background:none; border:none;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-family:var(--font-mono); font-size:10px; color:var(--text-soft);
+    padding:8px 4px;
+  }
+  footer.nav button.active{color:var(--ink);}
+  footer.nav .ic{font-size:16px;}
+</style>
+</head>
+<body>
+<div class="device" id="app">
+
+  <header class="masthead">
+    <p class="eyebrow" id="mastheadEyebrow">Control de asistencia docente</p>
+    <h1 id="mastheadTitle">Bitácora</h1>
+    <p class="sub" id="mastheadSub">Registro por grupo · Ingeniería en Sistemas</p>
+    <div class="user-chip" id="userChip" style="display:none;">
+      <span class="dot"></span>
+      <span id="userChipText"></span>
+      <span class="logout-link" onclick="handleLogout()">salir</span>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== LOGIN ===================== -->
+    <section class="view active" id="view-login">
+      <div class="card">
+        <p class="card-label">Acceso</p>
+        <label for="matricula" class="req">Matrícula</label>
+        <input type="text" id="matricula" placeholder="al252561" autocomplete="off">
+
+        <label for="password" class="req">Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <p class="hint">Si es tu primer ingreso, esta contraseña quedará guardada para la próxima vez (mínimo 6 caracteres).</p>
+
+        <div class="banner banner-error" id="loginError">Matrícula o contraseña incorrecta.</div>
+
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleLogin()">Entrar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= CAMBIO DE CONTRASEÑA OBLIGATORIO ===================== -->
+    <section class="view" id="view-cambiarPassword">
+      <div class="card">
+        <p class="card-label">Cambia tu contraseña</p>
+        <p style="font-size:13.5px; color:var(--text-soft); margin:0 0 4px;">
+          Estás usando la contraseña temporal que te dio el administrador. Elige una propia para continuar.
+        </p>
+        <label for="cpNueva" class="req">Nueva contraseña</label>
+        <input type="password" id="cpNueva" placeholder="mínimo 6 caracteres">
+        <label for="cpConfirmar" class="req">Confirmar contraseña</label>
+        <input type="password" id="cpConfirmar" placeholder="repítela">
+        <div class="banner banner-error" id="cpError"></div>
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleCambiarPassword()">Guardar y continuar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HOME ALUMNO ================= -->
+    <section class="view" id="view-home">
+      <div class="home-tile" onclick="goTo('registro')">
+        <div class="icon">＋</div>
+        <div><h3>Nuevo registro</h3><p>Anota la clase de hoy según el horario del grupo</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('historial')">
+        <div class="icon">☰</div>
+        <div><h3>Mis registros</h3><p>Consulta lo que ya capturaste</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTORIAL ALUMNO ===================== -->
+    <section class="view" id="view-historial">
+      <button class="back-link" onclick="goTo('home')">← volver</button>
+      <div class="card" id="historialList">
+        <p class="card-label">Mis registros</p>
+        <p class="hint">Todavía no has capturado ningún registro.</p>
+      </div>
+    </section>
+
+    <!-- ===================== FORMULARIO DE REGISTRO ===================== -->
+     <!-- ===================== AGREGUENLE OPCIONES QUE NO SE QUE MATERIAS TENGAN ===================== -->
+    <section class="view" id="view-registro">
+      <button class="back-link" onclick="goTo('home')">← volver</button>
+
+      <form class="card" id="formRegistro" onsubmit="return handleSubmitRegistro(event)">
+        <p class="card-label">Nuevo registro</p>
+
+        <label for="materia" class="req">Materia</label>
+        <select id="materia">
+          <option value="" selected>Selecciona una materia</option>
+          <option>Paradigmas de Programación</option>
+          <option>Integradora 1</option>
+          <option>Integradora 2</option>
+        </select>
+        <!-- ===================== PONGANLE MAESTROS QUE SOLO ME ACUERDO DE 2 ===================== -->
+        <label for="maestro" class="req">Maestro/a</label>
+        <select id="maestro">
+          <option value="" selected>Selecciona un profesor</option>
+          <option>Essau</option>
+          <option>Rosa</option>
+        </select>
+
+        <div class="row-2">
+          <div>
+            <label for="horaInicio" class="req">inicio</label>
+            <input type="time" id="horaInicio">
+          </div>
+          <div>
+            <label for="horaFin" class="req">fin</label>
+            <input type="time" id="horaFin">
+          </div>
+        </div>
+
+        <label class="req">¿Se impartió la clase?</label>
+        <div class="segmented" id="asistenciaSeg">
+          <button type="button" data-val="normal" onclick="selectAsistencia('normal')">normal</button>
+          <button type="button" data-val="retardo" onclick="selectAsistencia('retardo')">Retardo</button>
+          <button type="button" data-val="falta" onclick="selectAsistencia('falta')">Falta</button>
+        </div>
+
+        <label for="evidencia" id="evidenceLabelReq">Evidencia (foto)</label>
+        <div class="evidence-box" id="evidenceBox">
+          <input type="file" id="evidencia" accept="image/*" capture="environment" onchange="handleEvidencia(event)">
+          <span id="evidenceLabel">Toca para tomar o subir una foto</span>
+        </div>
+        <p class="hint" id="evidenceHint">Obligatoria si marcas falta o retardo.</p>
+        <div class="thumbs" id="thumbs"></div>
+
+        <label for="observaciones">Observaciones (opcional)</label>
+        <textarea id="observaciones" placeholder="Cualquier detalle adicional sobre la clase..."></textarea>
+
+        <div class="banner banner-success" id="registroSuccess">Guardado correctamente.</div>
+        <div class="banner banner-error" id="registroError">Ingresa todos los datos obligatorios.</div>
+
+        <div class="btn-block-group">
+          <button type="submit" class="btn-primary">Guardar registro</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================== HOME ADMIN ===================== -->
+    <section class="view" id="view-admin-home">
+      <div class="home-tile" onclick="goTo('adminUsuarios')">
+        <div class="icon">☺</div>
+        <div><h3>Usuarios</h3><p>Alta de alumnos y administradores</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('adminRegistros')">
+        <div class="icon">☰</div>
+        <div><h3>Todos los registros</h3><p>Ver, editar o eliminar cualquier registro</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('adminAccesos')">
+        <div class="icon">◷</div>
+        <div><h3>Accesos</h3><p>Registro de inicios de sesión</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: USUARIOS ===================== -->
+    <section class="view" id="view-adminUsuarios">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+
+      <div class="card" id="cardNuevoUsuario">
+        <p class="card-label">Agregar usuario</p>
+        <label for="nuMatricula" class="req">Matrícula</label>
+        <input type="text" id="nuMatricula" placeholder="al252561">
+        <label for="nuNombre" class="req">Nombre</label>
+        <input type="text" id="nuNombre" placeholder="Nombre completo">
+        <label for="nuGrupo">Grupo</label>
+        <input type="text" id="nuGrupo" placeholder="ISW-8A">
+        <label for="nuRol" class="req">Rol</label>
+        <select id="nuRol">
+          <option value="alumno" selected>Alumno (jefe de grupo)</option>
+          <option value="admin">Administrador</option>
+          <option value="admin_lectura">Administrador (solo lectura)</option>
+        </select>
+        <label for="nuPassword" class="req">Contraseña temporal</label>
+        <input type="text" id="nuPassword" placeholder="mínimo 6 caracteres">
+        <p class="hint">Entrégasela a la persona. La app le va a pedir que la cambie la primera vez que entre.</p>
+        <div class="banner banner-error" id="usuarioError">Falta la matrícula o el nombre.</div>
+        <div class="banner banner-success" id="usuarioSuccess">Usuario agregado.</div>
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleAddUsuario()">Agregar usuario</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Usuarios dados de alta</p>
+        <div id="listaUsuarios"><p class="hint">Aún no hay usuarios.</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: TODOS LOS REGISTROS (lista) ===================== -->
+    <section class="view" id="view-adminRegistros">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+      <div class="card">
+        <p class="card-label">Todos los registros</p>
+        <div id="listaRegistrosAdmin"><p class="hint">Todavía no hay registros capturados.</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: EDITAR REGISTRO ===================== -->
+    <section class="view" id="view-adminEditar">
+      <button class="back-link" onclick="goTo('adminRegistros')">← volver</button>
+      <form class="card" id="formEditar" onsubmit="return handleGuardarEdicion(event)">
+        <p class="card-label" id="editHeader">Editar registro</p>
+
+        <label for="edMateria" class="req">Materia</label>
+        <select id="edMateria">
+          <option>Paradigmas de Programación</option>
+          <option>Integradora 1</option>
+          <option>Integradora 2</option>
+        </select>
+
+        <label for="edMaestro" class="req">Maestro/a</label>
+        <select id="edMaestro">
+          <option>Essau</option>
+          <option>Rosa</option>
+        </select>
+
+        <div class="row-2">
+          <div>
+            <label for="edHoraInicio" class="req">Hora de inicio</label>
+            <input type="time" id="edHoraInicio">
+          </div>
+          <div>
+            <label for="edHoraFin" class="req">Hora de fin</label>
+            <input type="time" id="edHoraFin">
+          </div>
+        </div>
+
+        <label class="req">¿Se impartió la clase?</label>
+        <div class="segmented" id="edAsistenciaSeg">
+          <button type="button" data-val="normal" onclick="selectAsistenciaEdit('normal')">Normal</button>
+          <button type="button" data-val="retardo" onclick="selectAsistenciaEdit('retardo')">Retardo</button>
+          <button type="button" data-val="falta" onclick="selectAsistenciaEdit('falta')">Falta</button>
+        </div>
+
+        <label for="edObservaciones">Observaciones</label>
+        <textarea id="edObservaciones"></textarea>
+
+        <label id="edEvidenciaLabel" style="display:none;">Evidencia adjunta</label>
+        <div id="edEvidenciaBox" style="display:none;">
+          <img id="edEvidenciaImg" src="" alt="Evidencia" style="width:100%; border-radius:8px; border:1px solid var(--line); display:block;">
+        </div>
+
+        <p class="hint" id="edMeta"></p>
+
+        <div class="banner banner-success" id="editSuccess">Cambios guardados.</div>
+        <div class="banner banner-error" id="editError">Completa los campos obligatorios.</div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-danger" onclick="handleEliminarRegistro()">Eliminar</button>
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================== ADMIN: ACCESOS ===================== -->
+    <section class="view" id="view-adminAccesos">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+      <div class="card">
+        <p class="card-label">Registro de accesos</p>
+        <div id="listaAccesos"><p class="hint">Aún no hay accesos registrados.</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav" id="navAlumno" style="display:none;">
+    <button onclick="goTo('home')" id="navHome"><span class="ic">⌂</span>Inicio</button>
+    <button onclick="goTo('registro')" id="navRegistro"><span class="ic">＋</span>Registrar</button>
+    <button onclick="goTo('historial')" id="navHistorial"><span class="ic">☰</span>Mis registros</button>
+  </footer>
+
+  <footer class="nav" id="navAdmin" style="display:none;">
+    <button onclick="goTo('admin-home')" id="navAdminHome"><span class="ic">⌂</span>Inicio</button>
+    <button onclick="goTo('adminUsuarios')" id="navAdminUsuarios"><span class="ic">☺</span>Usuarios</button>
+    <button onclick="goTo('adminRegistros')" id="navAdminRegistros"><span class="ic">☰</span>Registros</button>
+    <button onclick="goTo('adminAccesos')" id="navAdminAccesos"><span class="ic">◷</span>Accesos</button>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   CONFIGURACIÓN DE FIREBASE
+   -------------------------------------------------------------------------
+   CAMBIENLE LAS KEYS SI USAN OTRA FIREBASE, ESTA ES LA MIA Y ME COBRAN SI SE PASAN DE USO
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAGxyl4qSmDHgHwwabmDLt-zv7yvbIN8k8",
+  authDomain: "bitacora-d5077.firebaseapp.com",
+  projectId: "bitacora-d5077",
+  storageBucket: "bitacora-d5077.firebasestorage.app",
+  messagingSenderId: "817608338870",
+  appId: "1:817608338870:web:2dfc1d77c4147ddbbce517"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const fs = firebase.firestore();
+
+// App secundaria: sirve solo para crear cuentas de otros usuarios.
+// Si usáramos la app principal, createUserWithEmailAndPassword cambiaría
+// la sesión activa al usuario recién creado y sacaría al admin.
+const appSecundaria = firebase.initializeApp(firebaseConfig, 'secundaria');
+const authSecundaria = appSecundaria.auth();
+
+// Firebase Auth solo maneja correos, así que la matrícula se convierte
+// en un correo interno que el usuario nunca ve ni usa directamente.
+// Le podemos poner los correos intitucionales para recuperar las contraseñas
+// Pero pagan muy poquito, solo reemplacen la de bitacora por edu.mx
+function pseudoEmail(matricula){ return matricula + '@bitacora.local'; }
+function matriculaDeAuth(user){ return user.email.split('@')[0]; }
+
+/* =========================================================================
+   ESTADO DE SESIÓN
+   ========================================================================= */
+let session = null; // { matricula, rol, nombre }
+let asistenciaVal = null;
+let evidenciaDataUrl = null;    // foto ya comprimida en base64, esto es lo que se guarda en Firestore
+//esta se tiene que guardar en formato numerico pq firebase no acepta imagenes en el formato gratis
+//si lo cambian avisen que esta bien caro el almacenamiento
+let editAsistenciaVal = null;
+let editContext = null;         // { registroId }
+
+// Si ya había una sesión guardada por Firebase la recuperamos al recargar la página, a veces funciona
+//muevanle a ver si encuentran fallos, estoy seguro de que alguien puede secuestrar alguna sesion de alguna
+//manera
+auth.onAuthStateChanged(async (user) => {
+  if(user && !session){
+    const matricula = matriculaDeAuth(user);
+    const doc = await fs.collection('usuarios').doc(matricula).get();
+    if(doc.exists){
+      const data = doc.data();
+      session = { matricula, rol: data.rol, nombre: data.nombre, grupo: data.grupo || '' };
+      if(data.debeCambiarPassword){ goTo('cambiarPassword'); return; }
+      afterLogin();
+    } else {
+      // El perfil fue eliminado por un admin mientras la sesión seguía
+      // abierta: se cierra en cuanto se recarga.
+      await auth.signOut();
+    }
+  }
+});
+
+function goTo(viewName){
+  const VISTAS_ALUMNO = ['home', 'registro', 'historial'];
+  const VISTAS_ADMIN = ['admin-home', 'adminUsuarios', 'adminRegistros', 'adminEditar', 'adminAccesos'];
+
+  // Nadie sin sesión puede entrar a una vista interna, y cada rol solo ve
+  // las vistas que le corresponden — esto evitaba que los
+  // botones de abajo funcionaran antes de iniciar sesión.
+  //prueben a ver si lo traban
+  if(viewName !== 'login' && viewName !== 'cambiarPassword' && !session){
+    viewName = 'login';
+  } else if(session && viewName !== 'cambiarPassword' && session.rol === 'alumno' && VISTAS_ADMIN.includes(viewName)){
+    viewName = 'home';
+  } else if(session && viewName !== 'cambiarPassword' && session.rol !== 'alumno' && VISTAS_ALUMNO.includes(viewName)){
+    viewName = 'admin-home';
+  }
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + viewName);
+  if(target) target.classList.add('active');
+
+  document.querySelectorAll('footer.nav button').forEach(b => b.classList.remove('active'));
+  const navId = 'nav' + viewName.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+  const navBtn = document.getElementById(navId);
+  if(navBtn) navBtn.classList.add('active');
+
+  const titles = {
+    home:            ['Inicio', 'Bitácora', 'Registro por grupo · Ingeniería en Sistemas'],
+    registro:        ['Nuevo registro', 'Bitácora', 'Captura la clase según el horario'],
+    historial:       ['Mis registros', 'Bitácora', 'Consulta lo que ya capturaste'],
+    'admin-home':    ['Panel', 'Bitácora Admin', 'Gestión de usuarios y registros'],
+    adminUsuarios:   ['Usuarios', 'Bitácora Admin', 'Alta de alumnos y administradores'],
+    adminRegistros:  ['Registros', 'Bitácora Admin', 'Todos los grupos'],
+    adminEditar:     ['Editar registro', 'Bitácora Admin', 'Modificación directa'],
+    adminAccesos:    ['Accesos', 'Bitácora Admin', 'Historial de inicios de sesión']
+  }[viewName];
+  if(titles){
+    document.getElementById('mastheadEyebrow').textContent = titles[0];
+    document.getElementById('mastheadTitle').textContent = titles[1];
+    document.getElementById('mastheadSub').textContent = titles[2];
+  }
+  window.scrollTo(0, 0);
+
+  if(viewName === 'historial') renderHistorial();
+  if(viewName === 'adminUsuarios') renderUsuarios();
+  if(viewName === 'adminRegistros') renderRegistrosAdmin();
+  if(viewName === 'adminAccesos') renderAccesos();
+}
+
+/* ---------------- LOGIN ---------------- */
+async function handleLogin(){
+  const matricula = document.getElementById('matricula').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.classList.remove('show');
+
+  if(!matricula || !password){
+    errorEl.textContent = 'Ingresa tu matrícula y contraseña.';
+    errorEl.classList.add('show');
+    return;
+  } 
+  //no se que estoy haciendo
+
+  const boton = document.querySelector('#view-login button.btn-primary');
+  boton.disabled = true; boton.textContent = 'Entrando...';
+
+  try {
+    // El login SOLO autentica; ya nunca crea cuentas. Antes, si un admin
+    // estaba dado de alta en Firestore pero todavía no había entrado por
+    // primera vez, cualquiera que supiera su matrícula podía "reclamar"
+    // esa cuenta poniéndole la contraseña que quisiera y entrar como
+    // administrador. Ahora la cuenta se crea al dar de alta al usuario,
+    // con una contraseña temporal que fija el admin, asi que no pongan 
+    // contraseñas de 1111, aparte que firestore requiere minimo
+    // 6 caracteres, y la ñ tambien traba firestore
+    try {
+      await auth.signInWithEmailAndPassword(pseudoEmail(matricula), password);
+    } catch(err){
+      errorEl.textContent = 'Matrícula o contraseña incorrecta.';
+      errorEl.classList.add('show');
+      return;
+    }
+
+    // El perfil se lee DESPUÉS de autenticar, así la colección de usuarios
+    // ya no necesita ser de lectura pública (antes cualquiera podía
+    // enumerar matrículas y ver quién era admin).
+    const userDoc = await fs.collection('usuarios').doc(matricula).get();
+    if(!userDoc.exists){
+      await auth.signOut();
+      errorEl.textContent = 'Tu cuenta ya no está activa. Contacta a un administrador.';
+      errorEl.classList.add('show');
+      return;
+    }
+
+    const data = userDoc.data();
+    session = { matricula, rol: data.rol, nombre: data.nombre, grupo: data.grupo || '' };
+    await fs.collection('accesos').add({
+      matricula,
+      resultado: 'ok',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    if(data.debeCambiarPassword){
+      goTo('cambiarPassword');
+      return;
+    }
+    afterLogin();
+  } catch(err){
+    
+    console.error(err);
+    errorEl.textContent = 'No se pudo iniciar sesión: ' + err.message;
+    errorEl.classList.add('show');
+  } finally {
+    boton.disabled = false; boton.textContent = 'Entrar';
+  }
+}
+
+async function handleCambiarPassword(){
+  const nueva = document.getElementById('cpNueva').value;
+  const confirmar = document.getElementById('cpConfirmar').value;
+  const errorEl = document.getElementById('cpError');
+  errorEl.classList.remove('show');
+
+  if(nueva.length < 6){
+    errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+    //si no firestore no te deja guardar, creo que se puede modificar con reglas
+    //pero ni idea de con cual
+    errorEl.classList.add('show');
+    return;
+  }
+  if(nueva !== confirmar){
+    errorEl.textContent = 'Las dos contraseñas no coinciden.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  try {
+    await auth.currentUser.updatePassword(nueva);
+    await fs.collection('usuarios').doc(session.matricula).update({ debeCambiarPassword: false });
+    document.getElementById('cpNueva').value = '';
+    document.getElementById('cpConfirmar').value = '';
+    afterLogin();
+  } catch(err){
+    errorEl.textContent = 'No se pudo cambiar: ' + err.message;
+    errorEl.classList.add('show');
+  }
+}
+
+function handleLogout(){
+  auth.signOut();
+  session = null;
+  document.getElementById('userChip').style.display = 'none';
+  document.getElementById('matricula').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('navAlumno').style.display = 'none';
+  document.getElementById('navAdmin').style.display = 'none';
+  goTo('login');
+}
+
+function afterLogin(){
+  document.getElementById('userChip').style.display = 'flex';
+  const rolLabel = { alumno: 'jefe de grupo', admin: 'administrador', admin_lectura: 'administrador' }[session.rol];
+  document.getElementById('userChipText').textContent = session.matricula.toUpperCase() + ' · ' + rolLabel;
+
+  if(session.rol === 'alumno'){
+    document.getElementById('navAlumno').style.display = 'flex';
+    document.getElementById('navAdmin').style.display = 'none';
+    goTo('home');
+  } else {
+    document.getElementById('navAlumno').style.display = 'none';
+    document.getElementById('navAdmin').style.display = 'flex';
+    document.getElementById('cardNuevoUsuario').style.display = session.rol === 'admin_lectura' ? 'none' : '';
+    goTo('admin-home');
+  }
+}
+
+/* ---------------- FORMULARIO DE REGISTRO (alumno) ---------------- */
+function selectAsistencia(val){
+  asistenciaVal = val;
+  document.querySelectorAll('#asistenciaSeg button').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  updateEvidenceRequirement();
+}
+
+function updateEvidenceRequirement(){
+  const needsEvidencia = asistenciaVal === 'falta' || asistenciaVal === 'retardo';
+  document.getElementById('evidenceLabelReq').classList.toggle('req', needsEvidencia);
+}
+
+// Sin Storage (cobran), la foto se comprime en el propio
+// navegador con un <canvas> y se guarda como texto base64 directo dentro
+// del documento de Firestore. Firestore acepta hasta 1MB por documento,
+// asi que esto lo comprime a 250kb, diganme si se ve bien la imagen
+function comprimirImagen(file, maxDim = 900, calidad = 0.6){
+  return new Promise((resolve, reject) => {
+    const lector = new FileReader();
+    lector.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else if(h >= w && h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', calidad));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    lector.onerror = reject;
+    lector.readAsDataURL(file);
+  });
+}
+
+async function handleEvidencia(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('evidenceLabel').textContent = 'Comprimiendo foto...';
+  try {
+    evidenciaDataUrl = await comprimirImagen(file);
+    const kb = Math.round(evidenciaDataUrl.length / 1024);
+    document.getElementById('evidenceLabel').textContent = '1 foto adjunta (' + kb + ' KB) · toca para cambiarla';
+    document.getElementById('evidenceBox').classList.remove('required-missing');
+    const thumbs = document.getElementById('thumbs');
+    thumbs.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = evidenciaDataUrl;
+    thumbs.appendChild(img);
+  } catch(err){
+    document.getElementById('evidenceLabel').textContent = 'No se pudo procesar la foto, intenta de nuevo.';
+  }
+}
+
+async function handleSubmitRegistro(e){
+  e.preventDefault();
+  const materia = document.getElementById('materia').value;
+  const maestro = document.getElementById('maestro').value;
+  const horaInicio = document.getElementById('horaInicio').value;
+  const horaFin = document.getElementById('horaFin').value;
+  const observaciones = document.getElementById('observaciones').value.trim();
+  const successEl = document.getElementById('registroSuccess');
+  const errorEl = document.getElementById('registroError');
+  successEl.classList.remove('show');
+  errorEl.classList.remove('show');
+
+  const faltantes = [];
+  if(!materia) faltantes.push('materia');
+  if(!maestro) faltantes.push('maestro');
+  if(!horaInicio) faltantes.push('hora de inicio');
+  if(!horaFin) faltantes.push('hora de fin');
+  if(!asistenciaVal) faltantes.push('si se impartió la clase');
+  const needsEvidencia = asistenciaVal === 'falta' || asistenciaVal === 'retardo';
+  if(needsEvidencia && !evidenciaDataUrl) faltantes.push('foto de evidencia');
+
+  if(faltantes.length > 0){
+    errorEl.textContent = 'Ingresa todos los datos obligatorios: ' + faltantes.join(', ') + '.';
+    errorEl.classList.add('show');
+    document.getElementById('evidenceBox').classList.toggle('required-missing', needsEvidencia && !evidenciaDataUrl);
+    return false;
+  }
+
+  const boton = e.target.querySelector('button[type=submit]');
+  boton.disabled = true; boton.textContent = 'Guardando...';
+
+  try {
+    // El registro se parte en dos: el documento padre (datos que un admin
+    // puede corregir) y una subcolección de versiones que es INMUTABLE —
+    // las reglas prohíben modificar o borrar una versión ya escrita, así
+    // que el historial no se puede limpiar desde la consola del navegador.
+    const registroRef = fs.collection('registros').doc();
+
+    await registroRef.set({
+      matricula: session.matricula,
+      grupo: session.grupo,
+      materia, maestro,
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // capturadoEn lo pone el server, no el navegador. Las reglas exigen
+    // que sea exactamente request.time, así que el alumno no puede
+    // declarar una hora de captura falsa aunque escriba directo a la API.
+    // fueraDeHorario ya no se guarda: se calcula al mostrar, comparando
+    // este timestamp confiable contra la hora de fin declarada.
+    // la neta me lo robe de github
+    await registroRef.collection('versiones').add({
+      numeroVersion: 1,
+      autor: session.matricula,
+      horaInicio, horaFin,
+      asistencia: asistenciaVal,
+      observaciones,
+      evidencia: evidenciaDataUrl,
+      capturadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    successEl.classList.add('show');
+    resetForm();
+  } catch(err){
+    errorEl.textContent = 'No se pudo guardar: ' + err.message;
+    errorEl.classList.add('show');
+  } finally {
+    boton.disabled = false; boton.textContent = 'Guardar registro';
+  }
+  return false;
+}
+
+function resetForm(){
+  document.getElementById('formRegistro').reset();
+  asistenciaVal = null;
+  evidenciaDataUrl = null;
+  document.querySelectorAll('#asistenciaSeg button').forEach(b => b.classList.remove('active'));
+  document.getElementById('evidenceLabel').textContent = 'Toca para tomar o subir una foto';
+  document.getElementById('evidenceBox').classList.remove('required-missing');
+  document.getElementById('thumbs').innerHTML = '';
+  updateEvidenceRequirement();
+}
+
+/* ---------------- HISTORIAL (alumno) ---------------- */
+async function renderHistorial(){
+  const cont = document.getElementById('historialList');
+  cont.innerHTML = '<p class="card-label">Mis registros</p><p class="hint">Cargando...</p>';
+
+  const registros = await cargarRegistrosConVersiones(
+    fs.collection('registros').where('matricula', '==', session.matricula)
+  );
+
+  if(registros.length === 0){
+    cont.innerHTML = '<p class="card-label">Mis registros</p><p class="hint">Todavía no has capturado ningún registro.</p>';
+    return;
+  }
+  const asistLabel = { normal: 'Clase normal', retardo: 'Retardo', falta: 'Falta' };
+  cont.innerHTML = '<p class="card-label">Mis registros</p>' + registros.map(r => {
+    const v = ultimaVersion(r);
+    return `<div class="list-row">
+      <div>
+        <strong style="font-family:var(--font-display); font-size:14px;">${r.materia}</strong>
+        <div class="meta">${r.maestro} · ${asistLabel[v.asistencia]}${v.evidencia ? ' · 📷' : ''}${r.versiones.length > 1 ? ' · editado ' + (r.versiones.length - 1) + '×' : ''}</div>
+      </div>
+      <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${v.horaInicio}–${v.horaFin}</span>
+    </div>`;
+  }).join('');
+}
+
+/* Las versiones ahora viven en una subcolección, así que hay que traerlas
+   aparte. Se ordenan por capturadoEn, que lo pone el servidor. */
+async function cargarVersiones(registroId){
+  const snap = await fs.collection('registros').doc(registroId).collection('versiones').get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => msDe(a.capturadoEn) - msDe(b.capturadoEn));
+}
+
+// capturadoEn llega como Timestamp de Firestore; si la escritura acaba de
+// salir del navegador puede venir null por un instante hasta que el
+// servidor la resuelve.
+function msDe(ts){ return ts && ts.toMillis ? ts.toMillis() : 0; }
+function fechaDe(ts){ return ts && ts.toDate ? ts.toDate() : null; }
+
+// Se calcula al mostrar, a partir del timestamp confiable del servidor.
+function calcularFueraDeHorario(version){
+  const capturado = fechaDe(version.capturadoEn);
+  if(!capturado || !version.horaFin) return false;
+  const [hF, mF] = version.horaFin.split(':').map(Number);
+  const limite = new Date(capturado);
+  limite.setHours(hF, mF, 0, 0);
+  return capturado > limite;
+}
+
+async function cargarRegistrosConVersiones(query){
+  const snap = await query.get();
+  const registros = await Promise.all(snap.docs.map(async d => {
+    const versiones = await cargarVersiones(d.id);
+    return { id: d.id, ...d.data(), versiones };
+  }));
+  return registros
+    .filter(r => r.versiones.length > 0)
+    .sort((a, b) => msDe(ultimaVersion(b).capturadoEn) - msDe(ultimaVersion(a).capturadoEn));
+}
+
+function ultimaVersion(registro){ return registro.versiones[registro.versiones.length - 1]; }
+
+/* ---------------- ADMIN: USUARIOS ---------------- */
+async function handleAddUsuario(){
+  const matricula = document.getElementById('nuMatricula').value.trim().toLowerCase();
+  const nombre = document.getElementById('nuNombre').value.trim();
+  const grupo = document.getElementById('nuGrupo').value.trim() || 'ISW-8A';
+  const rol = document.getElementById('nuRol').value;
+  const passwordTemp = document.getElementById('nuPassword').value;
+  const errorEl = document.getElementById('usuarioError');
+  const successEl = document.getElementById('usuarioSuccess');
+  errorEl.classList.remove('show'); successEl.classList.remove('show');
+
+  if(!matricula || !nombre || !passwordTemp){
+    errorEl.textContent = 'Ingresa todos los datos obligatorios: matrícula, nombre y contraseña temporal.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if(passwordTemp.length < 6){
+    errorEl.textContent = 'La contraseña temporal debe tener al menos 6 caracteres.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  try {
+    
+    try {
+      await authSecundaria.createUserWithEmailAndPassword(pseudoEmail(matricula), passwordTemp);
+      await authSecundaria.signOut();
+    } catch(err){
+      if(err.code === 'auth/email-already-in-use'){
+        // Puede pasar si el usuario fue eliminado y se está recreando: su
+        // cuenta de Auth sobrevive al borrado desde la app. Se le vuelve a
+        // dar acceso, pero conserva su contraseña anterior, por eso es 
+        // necesario borrarlo desde firebase
+        errorEl.textContent = 'Esa matrícula ya tenía cuenta. Se reactivó su acceso, pero conserva su contraseña anterior (para reiniciarla, bórrala en Firebase Console → Authentication).';
+        errorEl.classList.add('show');
+      } else {
+        throw err;
+      }
+    }
+
+    await fs.collection('usuarios').doc(matricula).set({
+      nombre, grupo, rol,
+      debeCambiarPassword: true,
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    successEl.classList.add('show');
+    document.getElementById('nuMatricula').value = '';
+    document.getElementById('nuNombre').value = '';
+    document.getElementById('nuGrupo').value = '';
+    document.getElementById('nuPassword').value = '';
+    document.getElementById('nuRol').value = 'alumno';
+    renderUsuarios();
+  } catch(err){
+    errorEl.textContent = 'No se pudo guardar: ' + err.message;
+    errorEl.classList.add('show');
+  }
+}
+
+async function renderUsuarios(){
+  const cont = document.getElementById('listaUsuarios');
+  cont.innerHTML = '<p class="hint">Cargando...</p>';
+  const snap = await fs.collection('usuarios').get();
+  if(snap.empty){
+    cont.innerHTML = '<p class="hint">Aún no hay usuarios además de tu cuenta.</p>';
+    return;
+  }
+  const puedeEditar = session.rol === 'admin';
+  cont.innerHTML = snap.docs.map(d => {
+    const mat = d.id, u = d.data();
+    // admin y admin_lectura se muestran igual como "Admin" no se
+    // distingue de cara al usuario quién tiene solo lectura, asi
+    // podemos meter admins que no sepan que su interfaz es diferente
+    const claseBadge = u.rol === 'alumno' ? 'alumno' : 'admin';
+    const textoBadge = u.rol === 'alumno' ? 'Alumno' : 'Admin';
+    return `<div class="list-row" style="cursor:default;">
+      <div>
+        <strong style="font-family:var(--font-display); font-size:14px;">${u.nombre || mat.toUpperCase()}</strong>
+        <div class="meta">${mat.toUpperCase()} · ${u.grupo || '—'}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="role-badge ${claseBadge}">${textoBadge}</span>
+        ${puedeEditar ? `<button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:12px;" onclick="handleEliminarUsuario('${mat}')">Eliminar</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function handleEliminarUsuario(matricula){
+  if(matricula === session.matricula){
+    alert('No puedes eliminar tu propia cuenta desde aquí. Pide a otro administrador que lo haga.');
+    return;
+  }
+  if(!confirm('¿Eliminar a ' + matricula.toUpperCase() + '? Deja de poder entrar a la app de inmediato. Sus registros anteriores NO se borran.')) return;
+  await fs.collection('usuarios').doc(matricula).delete();
+  renderUsuarios();
+}
+
+/* ---------------- ADMIN: TODOS LOS REGISTROS ---------------- */
+async function renderRegistrosAdmin(){
+  const cont = document.getElementById('listaRegistrosAdmin');
+  cont.innerHTML = '<p class="hint">Cargando...</p>';
+  const registros = await cargarRegistrosConVersiones(fs.collection('registros'));
+
+  if(registros.length === 0){
+    cont.innerHTML = '<p class="hint">Todavía no hay registros capturados.</p>';
+    return;
+  }
+  const asistLabel = { normal: 'Clase normal', retardo: 'Retardo', falta: 'Falta' };
+  cont.innerHTML = registros.map(r => {
+    const v = ultimaVersion(r);
+    return `<div class="list-row" onclick="abrirEdicion('${r.id}')">
+      <div>
+        <strong style="font-family:var(--font-display); font-size:14px;">${r.materia}</strong>
+        <div class="meta">${r.matricula.toUpperCase()} · ${r.maestro} · ${asistLabel[v.asistencia]}${v.evidencia ? ' · 📷' : ''}${calcularFueraDeHorario(v) ? ' · fuera de horario' : ''}${r.versiones.length > 1 ? ' · v' + r.versiones.length : ''}</div>
+      </div>
+      <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${v.horaInicio}–${v.horaFin}</span>
+    </div>`;
+  }).join('');
+}
+
+async function abrirEdicion(registroId){
+  const doc = await fs.collection('registros').doc(registroId).get();
+  if(!doc.exists) return;
+  const registro = doc.data();
+  const versiones = await cargarVersiones(registroId);
+  if(versiones.length === 0) return;
+  const v = versiones[versiones.length - 1];
+  editContext = { registroId };
+
+  document.getElementById('editHeader').textContent = 'Editar · ' + registro.matricula.toUpperCase();
+  document.getElementById('edMateria').value = registro.materia;
+  document.getElementById('edMaestro').value = registro.maestro;
+  document.getElementById('edHoraInicio').value = v.horaInicio;
+  document.getElementById('edHoraFin').value = v.horaFin;
+  document.getElementById('edObservaciones').value = v.observaciones || '';
+  if(v.evidencia){
+    document.getElementById('edEvidenciaLabel').style.display = 'block';
+    document.getElementById('edEvidenciaBox').style.display = 'block';
+    document.getElementById('edEvidenciaImg').src = v.evidencia;
+  } else {
+    document.getElementById('edEvidenciaLabel').style.display = 'none';
+    document.getElementById('edEvidenciaBox').style.display = 'none';
+    document.getElementById('edEvidenciaImg').src = '';
+  }
+  editAsistenciaVal = v.asistencia;
+  document.querySelectorAll('#edAsistenciaSeg button').forEach(b => b.classList.toggle('active', b.dataset.val === v.asistencia));
+  const capturado = fechaDe(v.capturadoEn);
+  document.getElementById('edMeta').textContent =
+    'Capturado ' + (capturado ? capturado.toLocaleString('es-MX') : '—') +
+    (calcularFueraDeHorario(v) ? ' (fuera de horario)' : '') +
+    ' · ' + versiones.length + (versiones.length === 1 ? ' versión' : ' versiones') +
+    ' · última por ' + (v.editadoPorAdmin ? v.editadoPorAdmin.toUpperCase() + ' (admin)' : (v.autor || '—').toUpperCase()) +
+    '. Guardar agrega una versión nueva; las anteriores no se borran.';
+
+  const soloLectura = session.rol === 'admin_lectura';
+  document.querySelectorAll('#formEditar input, #formEditar select, #formEditar textarea, #formEditar button').forEach(el => el.disabled = soloLectura);
+  document.querySelectorAll('#edAsistenciaSeg button').forEach(b => b.disabled = soloLectura);
+
+  goTo('adminEditar');
+}
+
+function selectAsistenciaEdit(val){
+  editAsistenciaVal = val;
+  document.querySelectorAll('#edAsistenciaSeg button').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+}
+
+async function handleGuardarEdicion(e){
+  e.preventDefault();
+  const errorEl = document.getElementById('editError');
+  const successEl = document.getElementById('editSuccess');
+  errorEl.classList.remove('show'); successEl.classList.remove('show');
+
+  const materia = document.getElementById('edMateria').value;
+  const maestro = document.getElementById('edMaestro').value;
+  const horaInicio = document.getElementById('edHoraInicio').value;
+  const horaFin = document.getElementById('edHoraFin').value;
+  const observaciones = document.getElementById('edObservaciones').value.trim();
+
+  if(!materia || !maestro || !horaInicio || !horaFin || !editAsistenciaVal){
+    errorEl.textContent = 'Ingresa todos los datos obligatorios.';
+    errorEl.classList.add('show');
+    return false;
+  }
+
+  try {
+    const ref = fs.collection('registros').doc(editContext.registroId);
+    const versiones = await cargarVersiones(editContext.registroId);
+    const anterior = versiones[versiones.length - 1];
+
+    
+    await ref.update({ materia, maestro });
+    await ref.collection('versiones').add({
+      numeroVersion: versiones.length + 1,
+      autor: session.matricula,
+      editadoPorAdmin: session.matricula,
+      horaInicio, horaFin,
+      asistencia: editAsistenciaVal,
+      observaciones,
+      evidencia: anterior ? (anterior.evidencia || null) : null,
+      capturadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    successEl.classList.add('show');
+    renderRegistrosAdmin();
+  } catch(err){
+    errorEl.textContent = 'No se pudo guardar: ' + err.message;
+    errorEl.classList.add('show');
+  }
+  return false;
+}
+
+async function handleEliminarRegistro(){
+  if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) return;
+  // Firestore no borra subcolecciones en cascada desde el cliente, así que
+  // hay que borrar las versiones a mano antes del documento padre.
+  const versiones = await fs.collection('registros').doc(editContext.registroId).collection('versiones').get();
+  await Promise.all(versiones.docs.map(d => d.ref.delete()));
+  await fs.collection('registros').doc(editContext.registroId).delete();
+  goTo('adminRegistros');
+}
+
+/* ---------------- ADMIN: ACCESOS ---------------- */
+async function renderAccesos(){
+  const cont = document.getElementById('listaAccesos');
+  cont.innerHTML = '<p class="hint">Cargando...</p>';
+  const snap = await fs.collection('accesos').orderBy('timestamp', 'desc').limit(100).get();
+  if(snap.empty){
+    cont.innerHTML = '<p class="hint">Aún no hay accesos registrados.</p>';
+    return;
+  }
+  cont.innerHTML = snap.docs.map(d => {
+    const a = d.data();
+    return `<div class="list-row">
+      <strong style="font-family:var(--font-mono); font-size:13px;">${a.matricula.toUpperCase()}</strong>
+      <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${fechaDe(a.timestamp) ? fechaDe(a.timestamp).toLocaleString('es-MX') : '—'}</span>
+    </div>`;
+  }).join('');
+}
+/*Todo en un solo archivo como debe de ser*/
+/*holamundo*/
+</script>
+</body>
+</html>
+
