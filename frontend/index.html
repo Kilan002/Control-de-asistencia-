@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bitácora · Control de clases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="device" id="app">
+
+  <header class="masthead">
+    <p class="eyebrow" id="mastheadEyebrow">Control de asistencia docente</p>
+    <h1 id="mastheadTitle">Bitácora</h1>
+    <p class="sub" id="mastheadSub">Registro por grupo · Ingeniería en Sistemas</p>
+    <div class="user-chip" id="userChip" style="display:none;">
+      <span class="dot"></span>
+      <span id="userChipText"></span>
+      <span class="logout-link" onclick="handleLogout()">salir</span>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== LOGIN ===================== -->
+    <section class="view active" id="view-login">
+      <div class="card">
+        <p class="card-label">Acceso</p>
+        <label for="matricula" class="req">Matrícula</label>
+        <input type="text" id="matricula" placeholder="al252561" autocomplete="off">
+
+        <label for="password" class="req">Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <p class="hint">Si es tu primer ingreso, esta contraseña quedará guardada para la próxima vez (mínimo 6 caracteres).</p>
+
+        <div class="banner banner-error" id="loginError">Matrícula o contraseña incorrecta.</div>
+
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleLogin()">Entrar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= CAMBIO DE CONTRASEÑA OBLIGATORIO ===================== -->
+    <section class="view" id="view-cambiarPassword">
+      <div class="card">
+        <p class="card-label">Cambia tu contraseña</p>
+        <p style="font-size:13.5px; color:var(--text-soft); margin:0 0 4px;">
+          Estás usando la contraseña temporal que te dio el administrador. Elige una propia para continuar.
+        </p>
+        <label for="cpNueva" class="req">Nueva contraseña</label>
+        <input type="password" id="cpNueva" placeholder="mínimo 6 caracteres">
+        <label for="cpConfirmar" class="req">Confirmar contraseña</label>
+        <input type="password" id="cpConfirmar" placeholder="repítela">
+        <div class="banner banner-error" id="cpError"></div>
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleCambiarPassword()">Guardar y continuar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HOME ALUMNO ================= -->
+    <section class="view" id="view-home">
+      <div class="home-tile" onclick="goTo('registro')">
+        <div class="icon">＋</div>
+        <div><h3>Nuevo registro</h3><p>Anota la clase de hoy según el horario del grupo</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('historial')">
+        <div class="icon">☰</div>
+        <div><h3>Mis registros</h3><p>Consulta lo que ya capturaste</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTORIAL ALUMNO ===================== -->
+    <section class="view" id="view-historial">
+      <button class="back-link" onclick="goTo('home')">← volver</button>
+      <div class="card" id="historialList">
+        <p class="card-label">Mis registros</p>
+        <p class="hint">Todavía no has capturado ningún registro.</p>
+      </div>
+    </section>
+
+    <!-- ===================== FORMULARIO DE REGISTRO ===================== -->
+     <!-- ===================== AGREGUENLE OPCIONES QUE NO SE QUE MATERIAS TENGAN ===================== -->
+    <section class="view" id="view-registro">
+      <button class="back-link" onclick="goTo('home')">← volver</button>
+
+      <form class="card" id="formRegistro" onsubmit="return handleSubmitRegistro(event)">
+        <p class="card-label">Nuevo registro</p>
+
+        <label for="materia" class="req">Materia</label>
+        <select id="materia">
+          <option value="" selected>Selecciona una materia</option>
+          <option>Paradigmas de Programación</option>
+          <option>Integradora 1</option>
+          <option>Integradora 2</option>
+        </select>
+        <!-- ===================== PONGANLE MAESTROS QUE SOLO ME ACUERDO DE 2 ===================== -->
+        <label for="maestro" class="req">Maestro/a</label>
+        <select id="maestro">
+          <option value="" selected>Selecciona un profesor</option>
+          <option>Essau</option>
+          <option>Rosa</option>
+        </select>
+
+        <div class="row-2">
+          <div>
+            <label for="horaInicio" class="req">inicio</label>
+            <input type="time" id="horaInicio">
+          </div>
+          <div>
+            <label for="horaFin" class="req">fin</label>
+            <input type="time" id="horaFin">
+          </div>
+        </div>
+
+        <label class="req">¿Se impartió la clase?</label>
+        <div class="segmented" id="asistenciaSeg">
+          <button type="button" data-val="normal" onclick="selectAsistencia('normal')">normal</button>
+          <button type="button" data-val="retardo" onclick="selectAsistencia('retardo')">Retardo</button>
+          <button type="button" data-val="falta" onclick="selectAsistencia('falta')">Falta</button>
+        </div>
+
+        <label for="evidencia" id="evidenceLabelReq">Evidencia (foto)</label>
+        <div class="evidence-box" id="evidenceBox">
+          <input type="file" id="evidencia" accept="image/*" capture="environment" onchange="handleEvidencia(event)">
+          <span id="evidenceLabel">Toca para tomar o subir una foto</span>
+        </div>
+        <p class="hint" id="evidenceHint">Obligatoria si marcas falta o retardo.</p>
+        <div class="thumbs" id="thumbs"></div>
+
+        <label for="observaciones">Observaciones (opcional)</label>
+        <textarea id="observaciones" placeholder="Cualquier detalle adicional sobre la clase..."></textarea>
+
+        <div class="banner banner-success" id="registroSuccess">Guardado correctamente.</div>
+        <div class="banner banner-error" id="registroError">Ingresa todos los datos obligatorios.</div>
+
+        <div class="btn-block-group">
+          <button type="submit" class="btn-primary">Guardar registro</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================== HOME ADMIN ===================== -->
+    <section class="view" id="view-admin-home">
+      <div class="home-tile" onclick="goTo('adminUsuarios')">
+        <div class="icon">☺</div>
+        <div><h3>Usuarios</h3><p>Alta de alumnos y administradores</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('adminRegistros')">
+        <div class="icon">☰</div>
+        <div><h3>Todos los registros</h3><p>Ver, editar o eliminar cualquier registro</p></div>
+      </div>
+      <div class="home-tile" onclick="goTo('adminAccesos')">
+        <div class="icon">◷</div>
+        <div><h3>Accesos</h3><p>Registro de inicios de sesión</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: USUARIOS ===================== -->
+    <section class="view" id="view-adminUsuarios">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+
+      <div class="card" id="cardNuevoUsuario">
+        <p class="card-label">Agregar usuario</p>
+        <label for="nuMatricula" class="req">Matrícula</label>
+        <input type="text" id="nuMatricula" placeholder="al252561">
+        <label for="nuNombre" class="req">Nombre</label>
+        <input type="text" id="nuNombre" placeholder="Nombre completo">
+        <label for="nuGrupo">Grupo</label>
+        <input type="text" id="nuGrupo" placeholder="ISW-8A">
+        <label for="nuRol" class="req">Rol</label>
+        <select id="nuRol">
+          <option value="alumno" selected>Alumno (jefe de grupo)</option>
+          <option value="admin">Administrador</option>
+          <option value="admin_lectura">Administrador (solo lectura)</option>
+        </select>
+        <label for="nuPassword" class="req">Contraseña temporal</label>
+        <input type="text" id="nuPassword" placeholder="mínimo 6 caracteres">
+        <p class="hint">Entrégasela a la persona. La app le va a pedir que la cambie la primera vez que entre.</p>
+        <div class="banner banner-error" id="usuarioError">Falta la matrícula o el nombre.</div>
+        <div class="banner banner-success" id="usuarioSuccess">Usuario agregado.</div>
+        <div class="btn-block-group">
+          <button class="btn-primary" onclick="handleAddUsuario()">Agregar usuario</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Usuarios dados de alta</p>
+        <div id="listaUsuarios"><p class="hint">Aún no hay usuarios.</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: TODOS LOS REGISTROS (lista) ===================== -->
+    <section class="view" id="view-adminRegistros">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+      <div class="card">
+        <p class="card-label">Todos los registros</p>
+        <div id="listaRegistrosAdmin"><p class="hint">Todavía no hay registros capturados.</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: EDITAR REGISTRO ===================== -->
+    <section class="view" id="view-adminEditar">
+      <button class="back-link" onclick="goTo('adminRegistros')">← volver</button>
+      <form class="card" id="formEditar" onsubmit="return handleGuardarEdicion(event)">
+        <p class="card-label" id="editHeader">Editar registro</p>
+
+        <label for="edMateria" class="req">Materia</label>
+        <select id="edMateria">
+          <option>Paradigmas de Programación</option>
+          <option>Integradora 1</option>
+          <option>Integradora 2</option>
+        </select>
+
+        <label for="edMaestro" class="req">Maestro/a</label>
+        <select id="edMaestro">
+          <option>Essau</option>
+          <option>Rosa</option>
+        </select>
+
+        <div class="row-2">
+          <div>
+            <label for="edHoraInicio" class="req">Hora de inicio</label>
+            <input type="time" id="edHoraInicio">
+          </div>
+          <div>
+            <label for="edHoraFin" class="req">Hora de fin</label>
+            <input type="time" id="edHoraFin">
+          </div>
+        </div>
+
+        <label class="req">¿Se impartió la clase?</label>
+        <div class="segmented" id="edAsistenciaSeg">
+          <button type="button" data-val="normal" onclick="selectAsistenciaEdit('normal')">Normal</button>
+          <button type="button" data-val="retardo" onclick="selectAsistenciaEdit('retardo')">Retardo</button>
+          <button type="button" data-val="falta" onclick="selectAsistenciaEdit('falta')">Falta</button>
+        </div>
+
+        <label for="edObservaciones">Observaciones</label>
+        <textarea id="edObservaciones"></textarea>
+
+        <label id="edEvidenciaLabel" style="display:none;">Evidencia adjunta</label>
+        <div id="edEvidenciaBox" style="display:none;">
+          <img id="edEvidenciaImg" src="" alt="Evidencia" style="width:100%; border-radius:8px; border:1px solid var(--line); display:block;">
+        </div>
+
+        <p class="hint" id="edMeta"></p>
+
+        <div class="banner banner-success" id="editSuccess">Cambios guardados.</div>
+        <div class="banner banner-error" id="editError">Completa los campos obligatorios.</div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-danger" onclick="handleEliminarRegistro()">Eliminar</button>
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================== ADMIN: ACCESOS ===================== -->
+    <section class="view" id="view-adminAccesos">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+      <div class="card">
+        <p class="card-label">Registro de accesos</p>
+        <div id="listaAccesos"><p class="hint">Aún no hay accesos registrados.</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav" id="navAlumno" style="display:none;">
+    <button onclick="goTo('home')" id="navHome"><span class="ic">⌂</span>Inicio</button>
+    <button onclick="goTo('registro')" id="navRegistro"><span class="ic">＋</span>Registrar</button>
+    <button onclick="goTo('historial')" id="navHistorial"><span class="ic">☰</span>Mis registros</button>
+  </footer>
+
+  <footer class="nav" id="navAdmin" style="display:none;">
+    <button onclick="goTo('admin-home')" id="navAdminHome"><span class="ic">⌂</span>Inicio</button>
+    <button onclick="goTo('adminUsuarios')" id="navAdminUsuarios"><span class="ic">☺</span>Usuarios</button>
+    <button onclick="goTo('adminRegistros')" id="navAdminRegistros"><span class="ic">☰</span>Registros</button>
+    <button onclick="goTo('adminAccesos')" id="navAdminAccesos"><span class="ic">◷</span>Accesos</button>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
