@@ -267,6 +267,8 @@
      en un panel con navegación lateral y contenido más ancho.
      ========================================================= */
   @media (min-width: 860px){
+    body.login-mode .device {margin-left: 0;}
+    body.login-mode footer.nav {display: none !important;}
     body{ justify-content:flex-start; }
 
     .device{

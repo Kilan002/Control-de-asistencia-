@@ -84,7 +84,7 @@ function goTo(viewName) {
   } else if (session && viewName !== 'cambiarPassword' && session.rol !== 'alumno' && VISTAS_ALUMNO.includes(viewName)) {
     viewName = 'admin-home';
   }
-
+  document.body.classList.toggle('login-mode', viewName === 'login');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + viewName);
   if (target) target.classList.add('active');
