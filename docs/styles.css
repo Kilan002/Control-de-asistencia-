@@ -193,6 +193,8 @@
 
   .row-2{display:flex; gap:12px;}
   .row-2 > div{flex:1;}
+  .catalogo-columnas{align-items:flex-start; margin-top:14px;}
+  .catalogo-columnas .card{min-width:0;}
 
   .evidence-box{
     border:1px dashed var(--line);
@@ -267,8 +269,6 @@
      en un panel con navegación lateral y contenido más ancho.
      ========================================================= */
   @media (min-width: 860px){
-    body.login-mode .device {margin-left: 0;}
-    body.login-mode footer.nav {display: none !important;}
     body{ justify-content:flex-start; }
 
     .device{
@@ -277,6 +277,10 @@
       margin-left:var(--sidebar-w);
       min-height:100vh;
     }
+
+    /* Login y cambio de contraseña no utilizan la navegación lateral. */
+    body.login-mode #app.device{margin-left:0 !important;}
+    body.login-mode footer.nav{display:none !important;}
 
     header.masthead{
       padding:22px 40px;
@@ -314,6 +318,11 @@
 
     .home-tile:hover{cursor:pointer;}
     .btn-row{max-width:420px;}
+  }
+
+  @media (max-width: 620px){
+    .catalogo-columnas{flex-direction:column;}
+    .catalogo-columnas > .card{width:100%;}
   }
 
   @media (min-width: 1180px){

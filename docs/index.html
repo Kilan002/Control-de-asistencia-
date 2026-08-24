@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="./styles.css?v=3">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -111,17 +111,11 @@
 
         <label for="materia" class="req">Materia</label>
         <select id="materia">
-          <option value="" selected>Selecciona una materia</option>
-          <option>Paradigmas de Programación</option>
-          <option>Integradora 1</option>
-          <option>Integradora 2</option>
+          <option value="" selected>Cargando materias...</option>
         </select>
-        <!-- ===================== PONGANLE MAESTROS QUE SOLO ME ACUERDO DE 2 ===================== -->
         <label for="maestro" class="req">Maestro/a</label>
         <select id="maestro">
-          <option value="" selected>Selecciona un profesor</option>
-          <option>Essau</option>
-          <option>Rosa</option>
+          <option value="" selected>Cargando profesores...</option>
         </select>
 
         <div class="row-2">
@@ -176,6 +170,47 @@
         <div class="icon">◷</div>
         <div><h3>Accesos</h3><p>Registro de inicios de sesión</p></div>
       </div>
+      <div class="home-tile" onclick="goTo('adminCatalogos')">
+        <div class="icon">≡</div>
+        <div><h3>Materias y profesores</h3><p>Administrar opciones disponibles en los registros</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== ADMIN: CATÁLOGOS ===================== -->
+    <section class="view" id="view-adminCatalogos">
+      <button class="back-link" onclick="goTo('admin-home')">← volver</button>
+
+      <div class="card catalogo-editor">
+        <p class="card-label">Agregar opciones</p>
+        <p class="hint" id="catalogoLecturaHint" style="display:none;">
+          Tu cuenta es de solo lectura. Puedes consultar las opciones, pero no modificarlas.
+        </p>
+        <div id="catalogoControles">
+          <label for="catalogoTipo" class="req">Tipo</label>
+          <select id="catalogoTipo">
+            <option value="materia">Materia</option>
+            <option value="profesor">Profesor</option>
+          </select>
+          <label for="catalogoNombre" class="req">Nombre</label>
+          <input type="text" id="catalogoNombre" maxlength="100" placeholder="Escribe el nombre">
+          <div class="banner banner-error" id="catalogoError"></div>
+          <div class="banner banner-success" id="catalogoSuccess">Elemento agregado.</div>
+          <div class="btn-block-group">
+            <button type="button" class="btn-primary" onclick="handleAgregarCatalogo()">Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-2 catalogo-columnas">
+        <div class="card">
+          <p class="card-label">Materias</p>
+          <div id="listaMaterias"><p class="hint">Cargando...</p></div>
+        </div>
+        <div class="card">
+          <p class="card-label">Profesores</p>
+          <div id="listaProfesores"><p class="hint">Cargando...</p></div>
+        </div>
+      </div>
     </section>
 
     <!-- ===================== ADMIN: USUARIOS ===================== -->
@@ -229,15 +264,12 @@
 
         <label for="edMateria" class="req">Materia</label>
         <select id="edMateria">
-          <option>Paradigmas de Programación</option>
-          <option>Integradora 1</option>
-          <option>Integradora 2</option>
+          <option value="">Cargando materias...</option>
         </select>
 
         <label for="edMaestro" class="req">Maestro/a</label>
         <select id="edMaestro">
-          <option>Essau</option>
-          <option>Rosa</option>
+          <option value="">Cargando profesores...</option>
         </select>
 
         <div class="row-2">
@@ -300,11 +332,11 @@
     <button onclick="goTo('adminUsuarios')" id="navAdminUsuarios"><span class="ic">☺</span>Usuarios</button>
     <button onclick="goTo('adminRegistros')" id="navAdminRegistros"><span class="ic">☰</span>Registros</button>
     <button onclick="goTo('adminAccesos')" id="navAdminAccesos"><span class="ic">◷</span>Accesos</button>
+    <button onclick="goTo('adminCatalogos')" id="navAdminCatalogos"><span class="ic">≡</span>Catálogos</button>
   </footer>
 
 </div>
 
-<script src="app.js"></script>
+<script src="./app.js?v=3"></script>
 </body>
 </html>
-

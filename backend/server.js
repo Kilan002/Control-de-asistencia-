@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const usuarioRoutes = require('./routes/usuarios');
 const registroRoutes = require('./routes/registros');
 const accesoRoutes = require('./routes/accesos');
+const catalogoRoutes = require('./routes/catalogos');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/auth', authRoutes);
 app.use('/usuarios', usuarioRoutes);
 app.use('/registros', registroRoutes);
 app.use('/accesos', accesoRoutes);
+app.use('/catalogos', catalogoRoutes);
 
 // Cualquier error no atrapado en una ruta cae aquí en vez de tumbar el proceso.
 app.use((err, req, res, next) => {

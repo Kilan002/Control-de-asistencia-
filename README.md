@@ -2,6 +2,10 @@
 
 App de control de asistencia docente. Migrada de Firebase a **MongoDB + API propia**.
 
+Las materias y los profesores se administran desde la pestaña **Catálogos**.
+Los usuarios `admin` pueden agregarlos o eliminarlos; `admin_lectura` solamente
+puede consultarlos. Eliminar una opción no modifica los registros históricos.
+
 ```
 frontend/   → HTML/CSS/JS estático, se sube a GitHub Pages
 backend/    → API en Node + Express, se sube a Render (u otro hosting con Node)

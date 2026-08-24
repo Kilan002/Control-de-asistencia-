@@ -14,6 +14,7 @@ let asistenciaVal = null;
 let evidenciaDataUrl = null;    // foto ya comprimida en base64
 let editAsistenciaVal = null;
 let editContext = null;         // { registroId }
+let catalogosCache = { materias: [], profesores: [] };
 
 /* ---------------- HELPER: escapar texto antes de insertarlo como HTML ----------------
    Los campos como "nombre" o "grupo" son texto libre que captura un admin;
@@ -75,7 +76,7 @@ function guardarSesionLocal() {
 
 function goTo(viewName) {
   const VISTAS_ALUMNO = ['home', 'registro', 'historial'];
-  const VISTAS_ADMIN = ['admin-home', 'adminUsuarios', 'adminRegistros', 'adminEditar', 'adminAccesos'];
+  const VISTAS_ADMIN = ['admin-home', 'adminUsuarios', 'adminRegistros', 'adminEditar', 'adminAccesos', 'adminCatalogos'];
 
   if (viewName !== 'login' && viewName !== 'cambiarPassword' && !session) {
     viewName = 'login';
@@ -84,7 +85,7 @@ function goTo(viewName) {
   } else if (session && viewName !== 'cambiarPassword' && session.rol !== 'alumno' && VISTAS_ALUMNO.includes(viewName)) {
     viewName = 'admin-home';
   }
-  document.body.classList.toggle('login-mode', viewName === 'login');
+  document.body.classList.toggle('login-mode', viewName === 'login' || viewName === 'cambiarPassword');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById('view-' + viewName);
   if (target) target.classList.add('active');
@@ -102,7 +103,8 @@ function goTo(viewName) {
     adminUsuarios:   ['Usuarios', 'Bitácora Admin', 'Alta de alumnos y administradores'],
     adminRegistros:  ['Registros', 'Bitácora Admin', 'Todos los grupos'],
     adminEditar:     ['Editar registro', 'Bitácora Admin', 'Modificación directa'],
-    adminAccesos:    ['Accesos', 'Bitácora Admin', 'Historial de inicios de sesión']
+    adminAccesos:    ['Accesos', 'Bitácora Admin', 'Historial de inicios de sesión'],
+    adminCatalogos:  ['Catálogos', 'Bitácora Admin', 'Materias y profesores disponibles']
   }[viewName];
   if (titles) {
     document.getElementById('mastheadEyebrow').textContent = titles[0];
@@ -115,6 +117,8 @@ function goTo(viewName) {
   if (viewName === 'adminUsuarios') renderUsuarios();
   if (viewName === 'adminRegistros') renderRegistrosAdmin();
   if (viewName === 'adminAccesos') renderAccesos();
+  if (viewName === 'adminCatalogos') renderCatalogosAdmin();
+  if (viewName === 'registro') cargarCatalogos().catch(() => {});
 }
 
 /* ---------------- LOGIN ---------------- */
@@ -230,6 +234,110 @@ function selectAsistencia(val) {
 function updateEvidenceRequirement() {
   const needsEvidencia = asistenciaVal === 'falta' || asistenciaVal === 'retardo';
   document.getElementById('evidenceLabelReq').classList.toggle('req', needsEvidencia);
+}
+
+/* ---------------- CATÁLOGOS DE MATERIAS Y PROFESORES ---------------- */
+function llenarSelectCatalogo(selectId, elementos, placeholder, valorActual = '') {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  const nombres = elementos.map(item => item.nombre);
+  // Conserva el valor de un registro histórico aunque el administrador ya
+  // haya eliminado esa opción del catálogo.
+  if (valorActual && !nombres.includes(valorActual)) nombres.push(valorActual);
+
+  select.innerHTML = '<option value="">' + escapeHtml(placeholder) + '</option>' +
+    nombres.map(nombre => `<option value="${escapeHtml(nombre)}">${escapeHtml(nombre)}</option>`).join('');
+  select.value = valorActual;
+}
+
+async function cargarCatalogos({ forzar = false, materiaActual = '', profesorActual = '' } = {}) {
+  if (forzar || catalogosCache.materias.length === 0 || catalogosCache.profesores.length === 0) {
+    try {
+      catalogosCache = await apiFetch('/catalogos');
+    } catch (err) {
+      llenarSelectCatalogo('materia', [], 'No se pudieron cargar las materias');
+      llenarSelectCatalogo('maestro', [], 'No se pudieron cargar los profesores');
+      throw err;
+    }
+  }
+
+  const materiaSeleccionada = materiaActual || document.getElementById('materia')?.value || '';
+  const profesorSeleccionado = profesorActual || document.getElementById('maestro')?.value || '';
+  llenarSelectCatalogo('materia', catalogosCache.materias, 'Selecciona una materia', materiaSeleccionada);
+  llenarSelectCatalogo('maestro', catalogosCache.profesores, 'Selecciona un profesor', profesorSeleccionado);
+  llenarSelectCatalogo('edMateria', catalogosCache.materias, 'Selecciona una materia', materiaActual);
+  llenarSelectCatalogo('edMaestro', catalogosCache.profesores, 'Selecciona un profesor', profesorActual);
+  return catalogosCache;
+}
+
+async function renderCatalogosAdmin() {
+  const puedeEditar = session.rol === 'admin';
+  document.getElementById('catalogoControles').style.display = puedeEditar ? '' : 'none';
+  document.getElementById('catalogoLecturaHint').style.display = puedeEditar ? 'none' : 'block';
+  const materiasCont = document.getElementById('listaMaterias');
+  const profesoresCont = document.getElementById('listaProfesores');
+  materiasCont.innerHTML = '<p class="hint">Cargando...</p>';
+  profesoresCont.innerHTML = '<p class="hint">Cargando...</p>';
+
+  try {
+    await cargarCatalogos({ forzar: true });
+  } catch (err) {
+    const mensaje = '<p class="hint">' + escapeHtml(err.message) + '</p>';
+    materiasCont.innerHTML = mensaje;
+    profesoresCont.innerHTML = mensaje;
+    return;
+  }
+
+  const renderLista = (elementos, tipo) => elementos.length === 0
+    ? '<p class="hint">No hay elementos agregados.</p>'
+    : elementos.map(item => `<div class="list-row" style="cursor:default;">
+        <span>${escapeHtml(item.nombre)}</span>
+        ${puedeEditar ? `<button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:12px;" onclick="handleEliminarCatalogo('${item._id}', '${tipo}')">Eliminar</button>` : ''}
+      </div>`).join('');
+
+  materiasCont.innerHTML = renderLista(catalogosCache.materias, 'materia');
+  profesoresCont.innerHTML = renderLista(catalogosCache.profesores, 'profesor');
+}
+
+async function handleAgregarCatalogo() {
+  const tipo = document.getElementById('catalogoTipo').value;
+  const nombreEl = document.getElementById('catalogoNombre');
+  const nombre = nombreEl.value.trim();
+  const errorEl = document.getElementById('catalogoError');
+  const successEl = document.getElementById('catalogoSuccess');
+  errorEl.classList.remove('show');
+  successEl.classList.remove('show');
+
+  if (!nombre) {
+    errorEl.textContent = 'Escribe el nombre que deseas agregar.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  try {
+    await apiFetch('/catalogos', {
+      method: 'POST',
+      body: JSON.stringify({ tipo, nombre })
+    });
+    nombreEl.value = '';
+    successEl.classList.add('show');
+    await renderCatalogosAdmin();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.add('show');
+  }
+}
+
+async function handleEliminarCatalogo(id, tipo) {
+  const etiqueta = tipo === 'materia' ? 'esta materia' : 'este profesor';
+  if (!confirm('¿Eliminar ' + etiqueta + ' de las opciones disponibles? Los registros anteriores no cambiarán.')) return;
+  try {
+    await apiFetch('/catalogos/' + encodeURIComponent(id), { method: 'DELETE' });
+    await renderCatalogosAdmin();
+  } catch (err) {
+    alert('No se pudo eliminar: ' + err.message);
+  }
 }
 
 // Se sigue comprimiendo en el navegador con <canvas> y se manda como texto
@@ -505,6 +613,13 @@ async function abrirEdicion(registroId) {
   }
   const v = ultimaVersion(registro);
   editContext = { registroId };
+
+  try {
+    await cargarCatalogos({ materiaActual: registro.materia, profesorActual: registro.maestro });
+  } catch (err) {
+    alert('No se pudieron cargar los catálogos: ' + err.message);
+    return;
+  }
 
   document.getElementById('editHeader').textContent = 'Editar · ' + registro.matricula.toUpperCase();
   document.getElementById('edMateria').value = registro.materia;

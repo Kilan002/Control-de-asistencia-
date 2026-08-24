@@ -1,4 +1,4 @@
-// Uso (una sola vez, para crear tu primer administrador):
+  // Uso (una sola vez, para crear tu primer administrador):
 //   node scripts/crearAdmin.js al252561 "Luis Pérez" contraseñaTemporal123
 //
 // Después de esto, entra a la app y da de alta a los demás usuarios
