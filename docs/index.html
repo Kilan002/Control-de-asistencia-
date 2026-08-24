@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=3">
+<link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -187,12 +187,17 @@
         </p>
         <div id="catalogoControles">
           <label for="catalogoTipo" class="req">Tipo</label>
-          <select id="catalogoTipo">
+          <select id="catalogoTipo" onchange="actualizarCamposCatalogo()">
             <option value="materia">Materia</option>
             <option value="profesor">Profesor</option>
           </select>
           <label for="catalogoNombre" class="req">Nombre</label>
           <input type="text" id="catalogoNombre" maxlength="100" placeholder="Escribe el nombre">
+          <div id="catalogoGruposWrap">
+            <label for="catalogoGrupos" class="req">Grupos asignados</label>
+            <input type="text" id="catalogoGrupos" placeholder="RBM11, RBM12, IMTM21">
+            <p class="hint">Separa varios códigos con comas. RBM corresponde a TSU e IMTM a Ingeniería.</p>
+          </div>
           <div class="banner banner-error" id="catalogoError"></div>
           <div class="banner banner-success" id="catalogoSuccess">Elemento agregado.</div>
           <div class="btn-block-group">
@@ -224,7 +229,8 @@
         <label for="nuNombre" class="req">Nombre</label>
         <input type="text" id="nuNombre" placeholder="Nombre completo">
         <label for="nuGrupo">Grupo</label>
-        <input type="text" id="nuGrupo" placeholder="ISW-8A">
+        <input type="text" id="nuGrupo" placeholder="RBM11 o IMTM21">
+        <p class="hint">Primer número: cuatrimestre. Segundo número: grupo.</p>
         <label for="nuRol" class="req">Rol</label>
         <select id="nuRol">
           <option value="alumno" selected>Alumno (jefe de grupo)</option>
@@ -337,6 +343,6 @@
 
 </div>
 
-<script src="./app.js?v=3"></script>
+<script src="./app.js?v=4"></script>
 </body>
 </html>

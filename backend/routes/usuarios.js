@@ -8,6 +8,7 @@ const router = express.Router();
 // Solo letras y números para la matrícula: evita ids raros en Mongo
 // (nada de "/", comillas, etc. que rompían cosas o permitían inyección de HTML).
 const MATRICULA_VALIDA = /^[a-z0-9]{3,20}$/;
+const GRUPO_VALIDO = /^(RBM|IMTM)[1-5][1-9]$/;
 
 router.use(requiereSesion);
 
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 router.post('/', requiereRol('admin'), async (req, res) => {
   const matricula = (req.body.matricula || '').trim().toLowerCase();
   const nombre = (req.body.nombre || '').trim();
-  const grupo = (req.body.grupo || '').trim() || 'ISW-8A';
+  const grupo = (req.body.grupo || '').trim().toUpperCase();
   const rol = req.body.rol;
   const passwordTemp = req.body.passwordTemp || '';
 
@@ -33,6 +34,9 @@ router.post('/', requiereRol('admin'), async (req, res) => {
   }
   if (!['alumno', 'admin', 'admin_lectura'].includes(rol)) {
     return res.status(400).json({ error: 'Rol inválido.' });
+  }
+  if (rol === 'alumno' && !GRUPO_VALIDO.test(grupo)) {
+    return res.status(400).json({ error: 'El grupo debe tener un código válido, como RBM11 o IMTM21.' });
   }
   if (passwordTemp.length < 6) {
     return res.status(400).json({ error: 'La contraseña temporal debe tener al menos 6 caracteres.' });

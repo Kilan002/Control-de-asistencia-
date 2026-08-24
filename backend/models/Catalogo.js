@@ -16,6 +16,13 @@ const catalogoSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Códigos exactos autorizados, por ejemplo RBM11, RBM12 o IMTM21.
+  // Un arreglo vacío conserva compatibilidad con materias antiguas y significa
+  // que la materia está disponible para todos los grupos.
+  grupos: {
+    type: [String],
+    default: []
+  },
   creadoEn: { type: Date, default: Date.now }
 });
 

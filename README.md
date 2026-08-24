@@ -6,6 +6,12 @@ Las materias y los profesores se administran desde la pestaña **Catálogos**.
 Los usuarios `admin` pueden agregarlos o eliminarlos; `admin_lectura` solamente
 puede consultarlos. Eliminar una opción no modifica los registros históricos.
 
+Cada materia se asigna a uno o varios grupos mediante su código. Se aceptan
+`RBM11` a `RBM59` para TSU y `IMTM11` a `IMTM59` para Ingeniería: el primer
+número identifica el cuatrimestre y el segundo identifica el grupo. Por ejemplo,
+una materia compartida por los dos grupos de primer cuatrimestre puede asignarse
+a `RBM11, RBM12`.
+
 ```
 frontend/   → HTML/CSS/JS estático, se sube a GitHub Pages
 backend/    → API en Node + Express, se sube a Render (u otro hosting con Node)

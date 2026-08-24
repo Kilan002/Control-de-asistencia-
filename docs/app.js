@@ -198,6 +198,7 @@ async function handleCambiarPassword() {
 
 function handleLogout() {
   session = null;
+  catalogosCache = { materias: [], profesores: [] };
   localStorage.removeItem('bitacora_session');
   document.getElementById('userChip').style.display = 'none';
   document.getElementById('matricula').value = '';
@@ -275,6 +276,7 @@ async function renderCatalogosAdmin() {
   const puedeEditar = session.rol === 'admin';
   document.getElementById('catalogoControles').style.display = puedeEditar ? '' : 'none';
   document.getElementById('catalogoLecturaHint').style.display = puedeEditar ? 'none' : 'block';
+  actualizarCamposCatalogo();
   const materiasCont = document.getElementById('listaMaterias');
   const profesoresCont = document.getElementById('listaProfesores');
   materiasCont.innerHTML = '<p class="hint">Cargando...</p>';
@@ -292,18 +294,37 @@ async function renderCatalogosAdmin() {
   const renderLista = (elementos, tipo) => elementos.length === 0
     ? '<p class="hint">No hay elementos agregados.</p>'
     : elementos.map(item => `<div class="list-row" style="cursor:default;">
-        <span>${escapeHtml(item.nombre)}</span>
-        ${puedeEditar ? `<button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:12px;" onclick="handleEliminarCatalogo('${item._id}', '${tipo}')">Eliminar</button>` : ''}
+        <div class="catalogo-item-main">
+          <span>${escapeHtml(item.nombre)}</span>
+          ${tipo === 'materia' ? `<div class="meta">${item.grupos?.length ? escapeHtml(item.grupos.join(' · ')) : 'Todos los grupos (sin asignación)'}</div>` : ''}
+        </div>
+        ${puedeEditar ? `<div class="catalogo-actions">
+          ${tipo === 'materia' ? `<button type="button" class="btn-ghost" onclick="handleEditarGrupos('${item._id}', '${(item.grupos || []).join(',')}')">Grupos</button>` : ''}
+          <button type="button" class="btn-danger" onclick="handleEliminarCatalogo('${item._id}', '${tipo}')">Eliminar</button>
+        </div>` : ''}
       </div>`).join('');
 
   materiasCont.innerHTML = renderLista(catalogosCache.materias, 'materia');
   profesoresCont.innerHTML = renderLista(catalogosCache.profesores, 'profesor');
 }
 
+function actualizarCamposCatalogo() {
+  const tipoEl = document.getElementById('catalogoTipo');
+  const wrap = document.getElementById('catalogoGruposWrap');
+  if (!tipoEl || !wrap) return;
+  wrap.style.display = tipoEl.value === 'materia' ? '' : 'none';
+}
+
+function leerGrupos(texto) {
+  return [...new Set(texto.split(',').map(g => g.trim().toUpperCase()).filter(Boolean))];
+}
+
 async function handleAgregarCatalogo() {
   const tipo = document.getElementById('catalogoTipo').value;
   const nombreEl = document.getElementById('catalogoNombre');
   const nombre = nombreEl.value.trim();
+  const gruposEl = document.getElementById('catalogoGrupos');
+  const grupos = tipo === 'materia' ? leerGrupos(gruposEl.value) : [];
   const errorEl = document.getElementById('catalogoError');
   const successEl = document.getElementById('catalogoSuccess');
   errorEl.classList.remove('show');
@@ -314,18 +335,46 @@ async function handleAgregarCatalogo() {
     errorEl.classList.add('show');
     return;
   }
+  if (tipo === 'materia' && grupos.length === 0) {
+    errorEl.textContent = 'Asigna la materia al menos a un grupo.';
+    errorEl.classList.add('show');
+    return;
+  }
 
   try {
     await apiFetch('/catalogos', {
       method: 'POST',
-      body: JSON.stringify({ tipo, nombre })
+      body: JSON.stringify({ tipo, nombre, grupos })
     });
     nombreEl.value = '';
+    gruposEl.value = '';
     successEl.classList.add('show');
     await renderCatalogosAdmin();
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.add('show');
+  }
+}
+
+async function handleEditarGrupos(id, gruposActuales) {
+  const entrada = prompt(
+    'Escribe los códigos de grupo separados por comas.\nEjemplo: RBM11, RBM12, IMTM21',
+    gruposActuales
+  );
+  if (entrada === null) return;
+  const grupos = leerGrupos(entrada);
+  if (grupos.length === 0) {
+    alert('Debes asignar al menos un grupo.');
+    return;
+  }
+  try {
+    await apiFetch('/catalogos/' + encodeURIComponent(id) + '/grupos', {
+      method: 'PUT',
+      body: JSON.stringify({ grupos })
+    });
+    await renderCatalogosAdmin();
+  } catch (err) {
+    alert('No se pudieron actualizar los grupos: ' + err.message);
   }
 }
 

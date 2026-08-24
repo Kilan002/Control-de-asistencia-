@@ -1,5 +1,7 @@
 const express = require('express');
 const Registro = require('../models/Registro');
+const Catalogo = require('../models/Catalogo');
+const Usuario = require('../models/Usuario');
 const { requiereSesion, requiereRol } = require('../middleware/auth');
 
 const router = express.Router();
@@ -48,11 +50,22 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Faltan datos: ' + faltantes.join(', ') });
   }
 
+  const usuario = await Usuario.findById(req.usuario.matricula, { grupo: 1 });
+  const grupoUsuario = (usuario?.grupo || '').trim().toUpperCase();
+  const materiaPermitida = await Catalogo.findOne({
+    tipo: 'materia',
+    nombreNormalizado: materia.trim().replace(/\s+/g, ' ').toLocaleLowerCase('es-MX'),
+    $or: [{ grupos: grupoUsuario }, { grupos: { $size: 0 } }, { grupos: { $exists: false } }]
+  });
+  if (!materiaPermitida) {
+    return res.status(403).json({ error: 'Esa materia no está asignada a tu grupo.' });
+  }
+
   // capturadoEn lo pone el servidor (Date.now del propio backend), nunca
   // el valor que mande el navegador — así nadie puede declarar una hora falsa.
   const registro = await Registro.create({
     matricula: req.usuario.matricula,
-    grupo: req.body.grupo || '',
+    grupo: grupoUsuario,
     materia, maestro,
     versiones: [{
       numeroVersion: 1,

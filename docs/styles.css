@@ -193,8 +193,13 @@
 
   .row-2{display:flex; gap:12px;}
   .row-2 > div{flex:1;}
-  .catalogo-columnas{align-items:flex-start; margin-top:14px;}
+  .catalogo-columnas{align-items:stretch; margin-top:14px;}
   .catalogo-columnas .card{min-width:0;}
+  .catalogo-columnas > .card + .card{margin-top:0;}
+  .catalogo-editor .banner{margin-top:14px;}
+  .catalogo-item-main{min-width:0; overflow-wrap:anywhere;}
+  .catalogo-actions{display:flex; gap:6px; flex-shrink:0;}
+  .catalogo-actions button{width:auto; padding:6px 10px; font-size:12px;}
 
   .evidence-box{
     border:1px dashed var(--line);
@@ -323,6 +328,7 @@
   @media (max-width: 620px){
     .catalogo-columnas{flex-direction:column;}
     .catalogo-columnas > .card{width:100%;}
+    .catalogo-columnas > .card + .card{margin-top:14px;}
   }
 
   @media (min-width: 1180px){
