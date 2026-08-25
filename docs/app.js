@@ -40,14 +40,16 @@ async function apiFetch(path, opts = {}) {
     throw new Error('No se pudo conectar con el servidor. Revisa tu internet.');
   }
 
-  if (res.status === 401) {
-    // El token ya no sirve (expiró o nunca hubo sesión): se cierra sesión.
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* respuesta sin cuerpo, ok */ }
+
+  // Un 401 al intentar entrar significa credenciales incorrectas y debemos
+  // mostrar el mensaje que devuelve /auth/login. En las demás rutas sí indica
+  // que el token de una sesión existente expiró o dejó de ser válido.
+  if (res.status === 401 && path !== '/auth/login') {
     handleLogout();
     throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
   }
-
-  let data = null;
-  try { data = await res.json(); } catch (e) { /* respuesta sin cuerpo, ok */ }
 
   if (!res.ok) {
     throw new Error((data && data.error) || 'Ocurrió un error inesperado.');
