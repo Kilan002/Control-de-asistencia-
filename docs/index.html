@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=4">
+<link rel="stylesheet" href="./styles.css?v=5">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -32,6 +32,7 @@
           Registro por grupo
         </p>
       </div>
+
     </div>
 
     <div class="user-chip" id="userChip" style="display:none;">
@@ -195,14 +196,31 @@
           <input type="text" id="catalogoNombre" maxlength="100" placeholder="Escribe el nombre">
           <div id="catalogoGruposWrap">
             <label for="catalogoGrupos" class="req">Grupos asignados</label>
-            <input type="text" id="catalogoGrupos" placeholder="RBM11, RBM12, IMTM21">
-            <p class="hint">Separa varios códigos con comas. RBM corresponde a TSU e IMTM a Ingeniería.</p>
+            <input type="text" id="catalogoGrupos" placeholder="SMW11, ATWX21, RMBX32">
+            <p class="hint">Separa varios códigos con comas. Usa la nomenclatura seguida del cuatrimestre y número de grupo.</p>
           </div>
           <div class="banner banner-error" id="catalogoError"></div>
           <div class="banner banner-success" id="catalogoSuccess">Elemento agregado.</div>
           <div class="btn-block-group">
             <button type="button" class="btn-primary" onclick="handleAgregarCatalogo()">Agregar</button>
           </div>
+        </div>
+      </div>
+
+      <div class="card" id="importadorPdf">
+        <p class="card-label">Importar horario desde PDF</p>
+        <p class="hint">Carga un archivo por vez. Inglés y su profesor se omiten automáticamente.</p>
+        <div class="pdf-drop-zone" id="pdfDropZone">
+          <input type="file" id="pdfArchivo" accept="application/pdf,.pdf" onchange="seleccionarPdf(this.files)">
+          <span id="pdfDropText">Arrastra aquí un PDF o haz clic para seleccionarlo</span>
+        </div>
+        <div class="pdf-preview-head"><span>Grupo</span><span>Profesor</span><span>Materia</span><span></span></div>
+        <div id="pdfPreview"></div>
+        <div class="banner banner-error" id="pdfImportError"></div>
+        <div class="banner banner-success" id="pdfImportSuccess"></div>
+        <div class="btn-row" id="pdfPreviewActions" style="display:none;">
+          <button type="button" class="btn-ghost" onclick="importacionPdf=[]; renderVistaPreviaPdf();">Cancelar</button>
+          <button type="button" class="btn-primary" onclick="guardarImportacionPdf()">Guardar registros</button>
         </div>
       </div>
 
@@ -215,6 +233,10 @@
           <p class="card-label">Profesores</p>
           <div id="listaProfesores"><p class="hint">Cargando...</p></div>
         </div>
+      </div>
+      <div class="card">
+        <p class="card-label">Asignaciones importadas</p>
+        <div id="listaAsignaciones"><p class="hint">Cargando...</p></div>
       </div>
     </section>
 
@@ -229,7 +251,7 @@
         <label for="nuNombre" class="req">Nombre</label>
         <input type="text" id="nuNombre" placeholder="Nombre completo">
         <label for="nuGrupo">Grupo</label>
-        <input type="text" id="nuGrupo" placeholder="RBM11 o IMTM21">
+        <input type="text" id="nuGrupo" placeholder="SMW11, ATWX21 o IMTM51">
         <p class="hint">Primer número: cuatrimestre. Segundo número: grupo.</p>
         <label for="nuRol" class="req">Rol</label>
         <select id="nuRol">
@@ -343,6 +365,6 @@
 
 </div>
 
-<script src="./app.js?v=5"></script>
+<script src="./app.js?v=6"></script>
 </body>
 </html>

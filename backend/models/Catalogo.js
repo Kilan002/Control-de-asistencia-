@@ -16,7 +16,7 @@ const catalogoSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // Códigos exactos autorizados, por ejemplo RBM11, RBM12 o IMTM21.
+  // Códigos exactos autorizados: nomenclatura de carrera/turno más dos dígitos.
   // Un arreglo vacío conserva compatibilidad con materias antiguas y significa
   // que la materia está disponible para todos los grupos.
   grupos: {

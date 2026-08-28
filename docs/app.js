@@ -15,6 +15,7 @@ let evidenciaDataUrl = null;    // foto ya comprimida en base64
 let editAsistenciaVal = null;
 let editContext = null;         // { registroId }
 let catalogosCache = { materias: [], profesores: [] };
+let importacionPdf = [];
 
 /* ---------------- HELPER: escapar texto antes de insertarlo como HTML ----------------
    Los campos como "nombre" o "grupo" son texto libre que captura un admin;
@@ -30,7 +31,8 @@ function escapeHtml(str) {
    Agrega el token de sesión automáticamente y convierte los errores del
    servidor en excepciones de JS con el mismo mensaje que mandó el backend. */
 async function apiFetch(path, opts = {}) {
-  const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+  const esFormData = opts.body instanceof FormData;
+  const headers = Object.assign(esFormData ? {} : { 'Content-Type': 'application/json' }, opts.headers || {});
   if (session && session.token) headers['Authorization'] = 'Bearer ' + session.token;
 
   let res;
@@ -98,15 +100,15 @@ function goTo(viewName) {
   if (navBtn) navBtn.classList.add('active');
 
   const titles = {
-    home:            ['Inicio', 'Bitácora', 'Registro por grupo · Ingeniería en Sistemas'],
+    home:            ['Inicio', 'Bitácora', 'Registro por grupo'],
     registro:        ['Nuevo registro', 'Bitácora', 'Captura la clase según el horario'],
     historial:       ['Mis registros', 'Bitácora', 'Consulta lo que ya capturaste'],
-    'admin-home':    ['Panel', 'Bitácora Admin', 'Gestión de usuarios y registros'],
-    adminUsuarios:   ['Usuarios', 'Bitácora Admin', 'Alta de alumnos y administradores'],
-    adminRegistros:  ['Registros', 'Bitácora Admin', 'Todos los grupos'],
-    adminEditar:     ['Editar registro', 'Bitácora Admin', 'Modificación directa'],
-    adminAccesos:    ['Accesos', 'Bitácora Admin', 'Historial de inicios de sesión'],
-    adminCatalogos:  ['Catálogos', 'Bitácora Admin', 'Materias y profesores disponibles']
+    'admin-home':    ['Panel', 'Bitácora Administrador', 'Gestión de usuarios y registros'],
+    adminUsuarios:   ['Usuarios', 'Bitácora Administrador', 'Alta de alumnos y administradores'],
+    adminRegistros:  ['Registros', 'Bitácora Administrador', 'Todos los grupos'],
+    adminEditar:     ['Editar registro', 'Bitácora Administrador', 'Modificación directa'],
+    adminAccesos:    ['Accesos', 'Bitácora Administrador', 'Historial de inicios de sesión'],
+    adminCatalogos:  ['Catálogos', 'Bitácora Administrador', 'Materias, profesores y grupos disponibles']
   }[viewName];
   if (titles) {
     document.getElementById('mastheadEyebrow').textContent = titles[0];
@@ -278,6 +280,7 @@ async function renderCatalogosAdmin() {
   const puedeEditar = session.rol === 'admin';
   document.getElementById('catalogoControles').style.display = puedeEditar ? '' : 'none';
   document.getElementById('catalogoLecturaHint').style.display = puedeEditar ? 'none' : 'block';
+  document.getElementById('importadorPdf').style.display = puedeEditar ? '' : 'none';
   actualizarCamposCatalogo();
   const materiasCont = document.getElementById('listaMaterias');
   const profesoresCont = document.getElementById('listaProfesores');
@@ -308,7 +311,126 @@ async function renderCatalogosAdmin() {
 
   materiasCont.innerHTML = renderLista(catalogosCache.materias, 'materia');
   profesoresCont.innerHTML = renderLista(catalogosCache.profesores, 'profesor');
+  await renderAsignacionesImportadas();
 }
+
+function configurarImportadorPdf() {
+  const zona = document.getElementById('pdfDropZone');
+  if (!zona) return;
+  ['dragenter', 'dragover'].forEach(tipo => zona.addEventListener(tipo, e => {
+    e.preventDefault(); zona.classList.add('dragging');
+  }));
+  ['dragleave', 'drop'].forEach(tipo => zona.addEventListener(tipo, e => {
+    e.preventDefault(); zona.classList.remove('dragging');
+  }));
+  zona.addEventListener('drop', e => seleccionarPdf(e.dataTransfer.files));
+}
+
+function seleccionarPdf(archivos) {
+  const errorEl = document.getElementById('pdfImportError');
+  errorEl.classList.remove('show');
+  if (archivos.length !== 1) {
+    errorEl.textContent = 'Arrastra solamente un PDF por vez.';
+    errorEl.classList.add('show'); return;
+  }
+  const archivo = archivos[0];
+  if (archivo.type !== 'application/pdf' && !archivo.name.toLowerCase().endsWith('.pdf')) {
+    errorEl.textContent = 'El archivo debe ser un PDF.';
+    errorEl.classList.add('show'); return;
+  }
+  importarPdf(archivo);
+}
+
+async function importarPdf(archivo) {
+  const zonaTexto = document.getElementById('pdfDropText');
+  const errorEl = document.getElementById('pdfImportError');
+  zonaTexto.textContent = 'Analizando ' + archivo.name + '...';
+  const form = new FormData(); form.append('archivo', archivo);
+  try {
+    const data = await apiFetch('/catalogos/importar-pdf', { method: 'POST', body: form });
+    importacionPdf = data.registros;
+    zonaTexto.textContent = archivo.name + ' · ' + importacionPdf.length + ' registros encontrados';
+    renderVistaPreviaPdf();
+  } catch (err) {
+    importacionPdf = [];
+    zonaTexto.textContent = 'Arrastra aquí un PDF o haz clic para seleccionarlo';
+    errorEl.textContent = err.message; errorEl.classList.add('show');
+    renderVistaPreviaPdf();
+  } finally { document.getElementById('pdfArchivo').value = ''; }
+}
+
+function renderVistaPreviaPdf() {
+  const cont = document.getElementById('pdfPreview');
+  const acciones = document.getElementById('pdfPreviewActions');
+  if (!importacionPdf.length) { cont.innerHTML = ''; acciones.style.display = 'none'; return; }
+  cont.innerHTML = importacionPdf.map((r, i) => `<div class="pdf-record" data-index="${i}">
+    <input aria-label="Grupo" value="${escapeHtml(r.grupo)}" maxlength="10" data-field="grupo">
+    <input aria-label="Profesor" value="${escapeHtml(r.profesor)}" maxlength="120" data-field="profesor">
+    <input aria-label="Materia" value="${escapeHtml(r.materia)}" maxlength="150" data-field="materia">
+    <button type="button" class="btn-danger" onclick="quitarRegistroPdf(${i})">Quitar</button>
+  </div>`).join('');
+  acciones.style.display = 'flex';
+}
+
+function leerVistaPreviaPdf() {
+  importacionPdf = [...document.querySelectorAll('#pdfPreview .pdf-record')].map(fila => ({
+    grupo: fila.querySelector('[data-field="grupo"]').value.trim().toUpperCase(),
+    profesor: fila.querySelector('[data-field="profesor"]').value.trim(),
+    materia: fila.querySelector('[data-field="materia"]').value.trim()
+  }));
+  return importacionPdf;
+}
+
+function quitarRegistroPdf(indice) {
+  leerVistaPreviaPdf(); importacionPdf.splice(indice, 1); renderVistaPreviaPdf();
+}
+
+async function guardarImportacionPdf() {
+  const errorEl = document.getElementById('pdfImportError');
+  const successEl = document.getElementById('pdfImportSuccess');
+  errorEl.classList.remove('show'); successEl.classList.remove('show');
+  const registros = leerVistaPreviaPdf();
+  if (!registros.length || registros.some(r => !r.grupo || !r.profesor || !r.materia)) {
+    errorEl.textContent = 'Revisa que ningún campo esté vacío.';
+    errorEl.classList.add('show'); return;
+  }
+  try {
+    const data = await apiFetch('/catalogos/asignaciones', { method: 'POST', body: JSON.stringify({ registros }) });
+    successEl.textContent = data.guardados + ' registros guardados correctamente.';
+    successEl.classList.add('show'); importacionPdf = [];
+    document.getElementById('pdfDropText').textContent = 'Arrastra aquí un PDF o haz clic para seleccionarlo';
+    renderVistaPreviaPdf(); await renderCatalogosAdmin();
+  } catch (err) { errorEl.textContent = err.message; errorEl.classList.add('show'); }
+}
+
+async function renderAsignacionesImportadas() {
+  const cont = document.getElementById('listaAsignaciones');
+  cont.innerHTML = '<p class="hint">Cargando...</p>';
+  try {
+    const registros = await apiFetch('/catalogos/asignaciones');
+    if (!registros.length) { cont.innerHTML = '<p class="hint">Todavía no hay registros importados.</p>'; return; }
+    cont.innerHTML = registros.map(r => `<div class="list-row assignment-row">
+      <div class="catalogo-item-main"><strong>${escapeHtml(r.grupo)}</strong> · ${escapeHtml(r.materia)}
+        <div class="meta">${escapeHtml(r.profesor)}</div></div>
+      ${session.rol === 'admin' ? `<button type="button" class="btn-ghost editar-asignacion" data-id="${r._id}">Editar</button>` : ''}
+    </div>`).join('');
+    cont.querySelectorAll('.editar-asignacion').forEach((boton, i) => boton.addEventListener('click', () => editarAsignacion(registros[i])));
+  } catch (err) { cont.innerHTML = '<p class="hint">' + escapeHtml(err.message) + '</p>'; }
+}
+
+async function editarAsignacion(registro) {
+  const grupo = prompt('Grupo:', registro.grupo); if (grupo === null) return;
+  const profesor = prompt('Profesor:', registro.profesor); if (profesor === null) return;
+  const materia = prompt('Materia:', registro.materia); if (materia === null) return;
+  try {
+    await apiFetch('/catalogos/asignaciones/' + encodeURIComponent(registro._id), {
+      method: 'PUT', body: JSON.stringify({ grupo, profesor, materia })
+    });
+    await renderCatalogosAdmin();
+  } catch (err) { alert('No se pudo modificar el registro: ' + err.message); }
+}
+
+document.addEventListener('DOMContentLoaded', configurarImportadorPdf);
 
 function actualizarCamposCatalogo() {
   const tipoEl = document.getElementById('catalogoTipo');
@@ -360,7 +482,7 @@ async function handleAgregarCatalogo() {
 
 async function handleEditarGrupos(id, gruposActuales) {
   const entrada = prompt(
-    'Escribe los códigos de grupo separados por comas.\nEjemplo: RBM11, RBM12, IMTM21',
+    'Escribe los códigos de grupo separados por comas.\nEjemplo: SMW11, ATWX21, RMBX32',
     gruposActuales
   );
   if (entrada === null) return;

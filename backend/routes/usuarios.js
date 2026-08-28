@@ -2,13 +2,13 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const { requiereSesion, requiereRol } = require('../middleware/auth');
+const { GRUPO_VALIDO } = require('../utils/grupos');
 
 const router = express.Router();
 
 // Solo letras y números para la matrícula: evita ids raros en Mongo
 // (nada de "/", comillas, etc. que rompían cosas o permitían inyección de HTML).
 const MATRICULA_VALIDA = /^[a-z0-9]{3,20}$/;
-const GRUPO_VALIDO = /^(RBM|IMTM)[1-5][1-9]$/;
 
 router.use(requiereSesion);
 
@@ -36,7 +36,7 @@ router.post('/', requiereRol('admin'), async (req, res) => {
     return res.status(400).json({ error: 'Rol inválido.' });
   }
   if (rol === 'alumno' && !GRUPO_VALIDO.test(grupo)) {
-    return res.status(400).json({ error: 'El grupo debe tener un código válido, como RBM11 o IMTM21.' });
+    return res.status(400).json({ error: 'El grupo debe usar una nomenclatura autorizada y dos dígitos válidos.' });
   }
   if (passwordTemp.length < 6) {
     return res.status(400).json({ error: 'La contraseña temporal debe tener al menos 6 caracteres.' });
