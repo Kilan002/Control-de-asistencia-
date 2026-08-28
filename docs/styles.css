@@ -209,6 +209,15 @@
   .pdf-record input{margin:0; min-width:0;}
   .pdf-record button,.assignment-row button{width:auto; padding:8px 10px;}
   .assignment-row{cursor:default;}
+  .modal-overlay{position:fixed; inset:0; z-index:100; padding:20px; display:flex; align-items:center; justify-content:center; background:rgba(15,46,32,.55); backdrop-filter:blur(2px);}
+  .modal-overlay[hidden]{display:none;}
+  .modal-card{width:min(100%,520px); max-height:calc(100vh - 40px); overflow:auto; background:var(--surface); border-radius:14px; padding:20px; box-shadow:0 20px 60px rgba(15,46,32,.28);}
+  .modal-card-small{width:min(100%,420px);}
+  .modal-header{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px;}
+  .modal-header h2{margin:0; font-family:var(--font-display); font-size:19px; color:var(--ink);}
+  .modal-close{width:34px; height:34px; padding:0; border-radius:50%; background:var(--bg); color:var(--ink); font-size:22px; line-height:1;}
+  .modal-card > p{margin:0; color:var(--text-soft); line-height:1.5; white-space:pre-line;}
+  body.modal-open{overflow:hidden;}
 
   .evidence-box{
     border:1px dashed var(--line);

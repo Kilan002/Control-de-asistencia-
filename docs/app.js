@@ -16,6 +16,8 @@ let editAsistenciaVal = null;
 let editContext = null;         // { registroId }
 let catalogosCache = { materias: [], profesores: [], asignaciones: [] };
 let importacionPdf = [];
+let asignacionEditando = null;
+let mensajeModalResolver = null;
 
 /* ---------------- HELPER: escapar texto antes de insertarlo como HTML ----------------
    Los campos como "nombre" o "grupo" son texto libre que captura un admin;
@@ -25,6 +27,35 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c]));
+}
+
+function abrirMensajeModal({ titulo, mensaje, confirmar = false, textoAceptar = 'Aceptar', peligro = false }) {
+  document.getElementById('mensajeModalTitulo').textContent = titulo;
+  document.getElementById('mensajeModalTexto').textContent = mensaje;
+  const cancelar = document.getElementById('mensajeModalCancelar');
+  const aceptar = document.getElementById('mensajeModalAceptar');
+  cancelar.style.display = confirmar ? '' : 'none';
+  aceptar.textContent = textoAceptar;
+  aceptar.className = peligro ? 'btn-danger' : 'btn-primary';
+  document.getElementById('mensajeModal').hidden = false;
+  document.body.classList.add('modal-open');
+  aceptar.focus();
+  return new Promise(resolve => { mensajeModalResolver = resolve; });
+}
+
+function mostrarMensaje(titulo, mensaje) {
+  return abrirMensajeModal({ titulo, mensaje });
+}
+
+function confirmarAccion(titulo, mensaje, textoAceptar = 'Confirmar') {
+  return abrirMensajeModal({ titulo, mensaje, confirmar: true, textoAceptar, peligro: true });
+}
+
+function resolverMensajeModal(resultado) {
+  document.getElementById('mensajeModal').hidden = true;
+  document.body.classList.remove('modal-open');
+  if (mensajeModalResolver) mensajeModalResolver(resultado);
+  mensajeModalResolver = null;
 }
 
 /* ---------------- HELPER: llamadas a la API ----------------
@@ -404,19 +435,57 @@ async function renderAsignacionesImportadas() {
   } catch (err) { cont.innerHTML = '<p class="hint">' + escapeHtml(err.message) + '</p>'; }
 }
 
-async function editarAsignacion(registro) {
-  const grupo = prompt('Grupo:', registro.grupo); if (grupo === null) return;
-  const profesor = prompt('Profesor:', registro.profesor); if (profesor === null) return;
-  const materia = prompt('Materia:', registro.materia); if (materia === null) return;
+function editarAsignacion(registro) {
+  asignacionEditando = registro;
+  document.getElementById('modalGrupo').value = registro.grupo;
+  document.getElementById('modalMateria').value = registro.materia;
+  document.getElementById('modalProfesor').value = registro.profesor;
+  document.getElementById('asignacionModalError').classList.remove('show');
+  document.getElementById('asignacionModal').hidden = false;
+  document.body.classList.add('modal-open');
+  document.getElementById('modalGrupo').focus();
+}
+
+function cerrarEdicionAsignacion() {
+  document.getElementById('asignacionModal').hidden = true;
+  document.body.classList.remove('modal-open');
+  asignacionEditando = null;
+}
+
+async function guardarEdicionAsignacion() {
+  if (!asignacionEditando) return;
+  const grupo = document.getElementById('modalGrupo').value.trim().toUpperCase();
+  const materia = document.getElementById('modalMateria').value.trim();
+  const profesor = document.getElementById('modalProfesor').value.trim();
+  const errorEl = document.getElementById('asignacionModalError');
+  errorEl.classList.remove('show');
+  if (!grupo || !materia || !profesor) {
+    errorEl.textContent = 'Completa los tres campos.';
+    errorEl.classList.add('show');
+    return;
+  }
   try {
-    await apiFetch('/catalogos/asignaciones/' + encodeURIComponent(registro._id), {
+    await apiFetch('/catalogos/asignaciones/' + encodeURIComponent(asignacionEditando._id), {
       method: 'PUT', body: JSON.stringify({ grupo, profesor, materia })
     });
+    cerrarEdicionAsignacion();
     await renderCatalogosAdmin();
-  } catch (err) { alert('No se pudo modificar el registro: ' + err.message); }
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.add('show');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', configurarImportadorPdf);
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!document.getElementById('asignacionModal').hidden) cerrarEdicionAsignacion();
+  else if (!document.getElementById('mensajeModal').hidden) resolverMensajeModal(false);
+});
+document.addEventListener('click', e => {
+  if (e.target.id === 'asignacionModal') cerrarEdicionAsignacion();
+  if (e.target.id === 'mensajeModal') resolverMensajeModal(false);
+});
 
 async function handleAgregarAsignacion() {
   const grupoEl = document.getElementById('catalogoGrupo');
@@ -675,15 +744,19 @@ async function renderUsuarios() {
 
 async function handleEliminarUsuario(matricula) {
   if (matricula === session.matricula) {
-    alert('No puedes eliminar tu propia cuenta desde aquí. Pide a otro administrador que lo haga.');
+    await mostrarMensaje('Cuenta protegida', 'No puedes eliminar tu propia cuenta desde aquí. Pide a otro administrador que lo haga.');
     return;
   }
-  if (!confirm('¿Eliminar a ' + matricula.toUpperCase() + '? Deja de poder entrar a la app de inmediato. Sus registros anteriores NO se borran.')) return;
+  if (!await confirmarAccion(
+    'Eliminar usuario',
+    '¿Eliminar a ' + matricula.toUpperCase() + '?\nDejará de poder entrar inmediatamente. Sus registros anteriores no se borrarán.',
+    'Eliminar usuario'
+  )) return;
   try {
     await apiFetch('/usuarios/' + encodeURIComponent(matricula), { method: 'DELETE' });
     renderUsuarios();
   } catch (err) {
-    alert('No se pudo eliminar: ' + err.message);
+    await mostrarMensaje('No se pudo eliminar', err.message);
   }
 }
 
@@ -722,7 +795,7 @@ async function abrirEdicion(registroId) {
   try {
     registro = await apiFetch('/registros/' + registroId);
   } catch (err) {
-    alert('No se pudo abrir el registro: ' + err.message);
+    await mostrarMensaje('No se pudo abrir el registro', err.message);
     return;
   }
   const v = ultimaVersion(registro);
@@ -731,7 +804,7 @@ async function abrirEdicion(registroId) {
   try {
     await cargarCatalogos({ materiaActual: registro.materia, profesorActual: registro.maestro });
   } catch (err) {
-    alert('No se pudieron cargar los catálogos: ' + err.message);
+    await mostrarMensaje('No se pudieron cargar los catálogos', err.message);
     return;
   }
 
@@ -805,12 +878,16 @@ async function handleGuardarEdicion(e) {
 }
 
 async function handleEliminarRegistro() {
-  if (!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) return;
+  if (!await confirmarAccion(
+    'Eliminar registro',
+    'Esta acción no se puede deshacer. ¿Quieres eliminar definitivamente el registro?',
+    'Eliminar registro'
+  )) return;
   try {
     await apiFetch('/registros/' + editContext.registroId, { method: 'DELETE' });
     goTo('adminRegistros');
   } catch (err) {
-    alert('No se pudo eliminar: ' + err.message);
+    await mostrarMensaje('No se pudo eliminar', err.message);
   }
 }
 

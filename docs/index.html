@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=6">
+<link rel="stylesheet" href="./styles.css?v=7">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -350,6 +350,40 @@
 
 </div>
 
-<script src="./app.js?v=7"></script>
+<div class="modal-overlay" id="asignacionModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="asignacionModalTitulo">
+    <div class="modal-header">
+      <h2 id="asignacionModalTitulo">Editar asignación</h2>
+      <button type="button" class="modal-close" onclick="cerrarEdicionAsignacion()" aria-label="Cerrar">×</button>
+    </div>
+    <label for="modalGrupo" class="req">Grupo</label>
+    <input type="text" id="modalGrupo" maxlength="10">
+    <label for="modalMateria" class="req">Materia</label>
+    <input type="text" id="modalMateria" maxlength="100">
+    <label for="modalProfesor" class="req">Profesor</label>
+    <input type="text" id="modalProfesor" maxlength="100">
+    <div class="banner banner-error" id="asignacionModalError"></div>
+    <div class="btn-row">
+      <button type="button" class="btn-ghost" onclick="cerrarEdicionAsignacion()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="guardarEdicionAsignacion()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="mensajeModal" hidden>
+  <div class="modal-card modal-card-small" role="dialog" aria-modal="true" aria-labelledby="mensajeModalTitulo">
+    <div class="modal-header">
+      <h2 id="mensajeModalTitulo">Confirmación</h2>
+      <button type="button" class="modal-close" onclick="resolverMensajeModal(false)" aria-label="Cerrar">×</button>
+    </div>
+    <p id="mensajeModalTexto"></p>
+    <div class="btn-row">
+      <button type="button" class="btn-ghost" id="mensajeModalCancelar" onclick="resolverMensajeModal(false)">Cancelar</button>
+      <button type="button" class="btn-primary" id="mensajeModalAceptar" onclick="resolverMensajeModal(true)">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script src="./app.js?v=8"></script>
 </body>
 </html>
