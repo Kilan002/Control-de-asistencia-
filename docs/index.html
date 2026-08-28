@@ -7,8 +7,8 @@
 <link rel="icon" type="image/png" href="./assets/logo-utcj.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=5">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css?v=6">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -111,7 +111,7 @@
         <p class="card-label">Nuevo registro</p>
 
         <label for="materia" class="req">Materia</label>
-        <select id="materia">
+        <select id="materia" onchange="actualizarProfesoresPorMateria()">
           <option value="" selected>Cargando materias...</option>
         </select>
         <label for="maestro" class="req">Maestro/a</label>
@@ -182,27 +182,22 @@
       <button class="back-link" onclick="goTo('admin-home')">← volver</button>
 
       <div class="card catalogo-editor">
-        <p class="card-label">Agregar opciones</p>
+        <p class="card-label">Agregar asignación manual</p>
         <p class="hint" id="catalogoLecturaHint" style="display:none;">
           Tu cuenta es de solo lectura. Puedes consultar las opciones, pero no modificarlas.
         </p>
         <div id="catalogoControles">
-          <label for="catalogoTipo" class="req">Tipo</label>
-          <select id="catalogoTipo" onchange="actualizarCamposCatalogo()">
-            <option value="materia">Materia</option>
-            <option value="profesor">Profesor</option>
-          </select>
-          <label for="catalogoNombre" class="req">Nombre</label>
-          <input type="text" id="catalogoNombre" maxlength="100" placeholder="Escribe el nombre">
-          <div id="catalogoGruposWrap">
-            <label for="catalogoGrupos" class="req">Grupos asignados</label>
-            <input type="text" id="catalogoGrupos" placeholder="SMW11, ATWX21, RMBX32">
-            <p class="hint">Separa varios códigos con comas. Usa la nomenclatura seguida del cuatrimestre y número de grupo.</p>
-          </div>
+          <label for="catalogoGrupo" class="req">Grupo</label>
+          <input type="text" id="catalogoGrupo" maxlength="10" placeholder="SMW11">
+          <label for="catalogoMateria" class="req">Materia</label>
+          <input type="text" id="catalogoMateria" maxlength="100" placeholder="Nombre de la materia">
+          <label for="catalogoProfesor" class="req">Profesor</label>
+          <input type="text" id="catalogoProfesor" maxlength="100" placeholder="Nombre completo del profesor">
+          <p class="hint">Se guardará con el mismo formato utilizado por el importador de PDF.</p>
           <div class="banner banner-error" id="catalogoError"></div>
-          <div class="banner banner-success" id="catalogoSuccess">Elemento agregado.</div>
+          <div class="banner banner-success" id="catalogoSuccess">Asignación agregada.</div>
           <div class="btn-block-group">
-            <button type="button" class="btn-primary" onclick="handleAgregarCatalogo()">Agregar</button>
+            <button type="button" class="btn-primary" onclick="handleAgregarAsignacion()">Agregar asignación</button>
           </div>
         </div>
       </div>
@@ -224,18 +219,8 @@
         </div>
       </div>
 
-      <div class="row-2 catalogo-columnas">
-        <div class="card">
-          <p class="card-label">Materias</p>
-          <div id="listaMaterias"><p class="hint">Cargando...</p></div>
-        </div>
-        <div class="card">
-          <p class="card-label">Profesores</p>
-          <div id="listaProfesores"><p class="hint">Cargando...</p></div>
-        </div>
-      </div>
       <div class="card">
-        <p class="card-label">Asignaciones importadas</p>
+        <p class="card-label">Asignaciones registradas</p>
         <div id="listaAsignaciones"><p class="hint">Cargando...</p></div>
       </div>
     </section>
@@ -365,6 +350,6 @@
 
 </div>
 
-<script src="./app.js?v=6"></script>
+<script src="./app.js?v=7"></script>
 </body>
 </html>

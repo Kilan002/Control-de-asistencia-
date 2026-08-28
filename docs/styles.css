@@ -18,7 +18,7 @@
     --red:#A63A2E;
     --radius:10px;
     --font-display:'Space Grotesk', sans-serif;
-    --font-mono:'IBM Plex Mono', monospace;
+    --font-mono:ui-monospace, SFMono-Regular, Consolas, monospace;
     --font-body:'IBM Plex Sans', sans-serif;
 
     --sidebar-w:248px;

@@ -14,7 +14,7 @@ let asistenciaVal = null;
 let evidenciaDataUrl = null;    // foto ya comprimida en base64
 let editAsistenciaVal = null;
 let editContext = null;         // { registroId }
-let catalogosCache = { materias: [], profesores: [] };
+let catalogosCache = { materias: [], profesores: [], asignaciones: [] };
 let importacionPdf = [];
 
 /* ---------------- HELPER: escapar texto antes de insertarlo como HTML ----------------
@@ -202,7 +202,7 @@ async function handleCambiarPassword() {
 
 function handleLogout() {
   session = null;
-  catalogosCache = { materias: [], profesores: [] };
+  catalogosCache = { materias: [], profesores: [], asignaciones: [] };
   localStorage.removeItem('bitacora_session');
   document.getElementById('userChip').style.display = 'none';
   document.getElementById('matricula').value = '';
@@ -257,7 +257,7 @@ function llenarSelectCatalogo(selectId, elementos, placeholder, valorActual = ''
 }
 
 async function cargarCatalogos({ forzar = false, materiaActual = '', profesorActual = '' } = {}) {
-  if (forzar || catalogosCache.materias.length === 0 || catalogosCache.profesores.length === 0) {
+  if (forzar || (catalogosCache.materias.length === 0 && catalogosCache.asignaciones.length === 0)) {
     try {
       catalogosCache = await apiFetch('/catalogos');
     } catch (err) {
@@ -268,12 +268,28 @@ async function cargarCatalogos({ forzar = false, materiaActual = '', profesorAct
   }
 
   const materiaSeleccionada = materiaActual || document.getElementById('materia')?.value || '';
-  const profesorSeleccionado = profesorActual || document.getElementById('maestro')?.value || '';
-  llenarSelectCatalogo('materia', catalogosCache.materias, 'Selecciona una materia', materiaSeleccionada);
-  llenarSelectCatalogo('maestro', catalogosCache.profesores, 'Selecciona un profesor', profesorSeleccionado);
+  if (session.rol === 'alumno') {
+    const materiasAsignadas = [...new Map((catalogosCache.asignaciones || []).map(a => [a.materia, { nombre: a.materia }])).values()];
+    llenarSelectCatalogo('materia', materiasAsignadas, 'Selecciona una materia', materiaSeleccionada);
+    actualizarProfesoresPorMateria(materiaSeleccionada, profesorActual);
+  }
   llenarSelectCatalogo('edMateria', catalogosCache.materias, 'Selecciona una materia', materiaActual);
   llenarSelectCatalogo('edMaestro', catalogosCache.profesores, 'Selecciona un profesor', profesorActual);
   return catalogosCache;
+}
+
+function actualizarProfesoresPorMateria(materiaForzada = '', profesorActual = '') {
+  const materia = materiaForzada || document.getElementById('materia')?.value || '';
+  const profesores = (catalogosCache.asignaciones || [])
+    .filter(a => a.materia === materia)
+    .map(a => ({ nombre: a.profesor }));
+  llenarSelectCatalogo(
+    'maestro', profesores,
+    materia ? 'Selecciona el profesor asignado' : 'Primero selecciona una materia',
+    profesorActual
+  );
+  const select = document.getElementById('maestro');
+  if (select) select.disabled = !materia;
 }
 
 async function renderCatalogosAdmin() {
@@ -281,36 +297,6 @@ async function renderCatalogosAdmin() {
   document.getElementById('catalogoControles').style.display = puedeEditar ? '' : 'none';
   document.getElementById('catalogoLecturaHint').style.display = puedeEditar ? 'none' : 'block';
   document.getElementById('importadorPdf').style.display = puedeEditar ? '' : 'none';
-  actualizarCamposCatalogo();
-  const materiasCont = document.getElementById('listaMaterias');
-  const profesoresCont = document.getElementById('listaProfesores');
-  materiasCont.innerHTML = '<p class="hint">Cargando...</p>';
-  profesoresCont.innerHTML = '<p class="hint">Cargando...</p>';
-
-  try {
-    await cargarCatalogos({ forzar: true });
-  } catch (err) {
-    const mensaje = '<p class="hint">' + escapeHtml(err.message) + '</p>';
-    materiasCont.innerHTML = mensaje;
-    profesoresCont.innerHTML = mensaje;
-    return;
-  }
-
-  const renderLista = (elementos, tipo) => elementos.length === 0
-    ? '<p class="hint">No hay elementos agregados.</p>'
-    : elementos.map(item => `<div class="list-row" style="cursor:default;">
-        <div class="catalogo-item-main">
-          <span>${escapeHtml(item.nombre)}</span>
-          ${tipo === 'materia' ? `<div class="meta">${item.grupos?.length ? escapeHtml(item.grupos.join(' · ')) : 'Todos los grupos (sin asignación)'}</div>` : ''}
-        </div>
-        ${puedeEditar ? `<div class="catalogo-actions">
-          ${tipo === 'materia' ? `<button type="button" class="btn-ghost" onclick="handleEditarGrupos('${item._id}', '${(item.grupos || []).join(',')}')">Grupos</button>` : ''}
-          <button type="button" class="btn-danger" onclick="handleEliminarCatalogo('${item._id}', '${tipo}')">Eliminar</button>
-        </div>` : ''}
-      </div>`).join('');
-
-  materiasCont.innerHTML = renderLista(catalogosCache.materias, 'materia');
-  profesoresCont.innerHTML = renderLista(catalogosCache.profesores, 'profesor');
   await renderAsignacionesImportadas();
 }
 
@@ -432,84 +418,39 @@ async function editarAsignacion(registro) {
 
 document.addEventListener('DOMContentLoaded', configurarImportadorPdf);
 
-function actualizarCamposCatalogo() {
-  const tipoEl = document.getElementById('catalogoTipo');
-  const wrap = document.getElementById('catalogoGruposWrap');
-  if (!tipoEl || !wrap) return;
-  wrap.style.display = tipoEl.value === 'materia' ? '' : 'none';
-}
-
-function leerGrupos(texto) {
-  return [...new Set(texto.split(',').map(g => g.trim().toUpperCase()).filter(Boolean))];
-}
-
-async function handleAgregarCatalogo() {
-  const tipo = document.getElementById('catalogoTipo').value;
-  const nombreEl = document.getElementById('catalogoNombre');
-  const nombre = nombreEl.value.trim();
-  const gruposEl = document.getElementById('catalogoGrupos');
-  const grupos = tipo === 'materia' ? leerGrupos(gruposEl.value) : [];
+async function handleAgregarAsignacion() {
+  const grupoEl = document.getElementById('catalogoGrupo');
+  const materiaEl = document.getElementById('catalogoMateria');
+  const profesorEl = document.getElementById('catalogoProfesor');
+  const registro = {
+    grupo: grupoEl.value.trim().toUpperCase(),
+    materia: materiaEl.value.trim(),
+    profesor: profesorEl.value.trim()
+  };
   const errorEl = document.getElementById('catalogoError');
   const successEl = document.getElementById('catalogoSuccess');
   errorEl.classList.remove('show');
   successEl.classList.remove('show');
 
-  if (!nombre) {
-    errorEl.textContent = 'Escribe el nombre que deseas agregar.';
-    errorEl.classList.add('show');
-    return;
-  }
-  if (tipo === 'materia' && grupos.length === 0) {
-    errorEl.textContent = 'Asigna la materia al menos a un grupo.';
+  if (!registro.grupo || !registro.materia || !registro.profesor) {
+    errorEl.textContent = 'Completa el grupo, la materia y el profesor.';
     errorEl.classList.add('show');
     return;
   }
 
   try {
-    await apiFetch('/catalogos', {
+    await apiFetch('/catalogos/asignaciones', {
       method: 'POST',
-      body: JSON.stringify({ tipo, nombre, grupos })
+      body: JSON.stringify({ registros: [registro] })
     });
-    nombreEl.value = '';
-    gruposEl.value = '';
+    grupoEl.value = '';
+    materiaEl.value = '';
+    profesorEl.value = '';
     successEl.classList.add('show');
     await renderCatalogosAdmin();
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.add('show');
-  }
-}
-
-async function handleEditarGrupos(id, gruposActuales) {
-  const entrada = prompt(
-    'Escribe los códigos de grupo separados por comas.\nEjemplo: SMW11, ATWX21, RMBX32',
-    gruposActuales
-  );
-  if (entrada === null) return;
-  const grupos = leerGrupos(entrada);
-  if (grupos.length === 0) {
-    alert('Debes asignar al menos un grupo.');
-    return;
-  }
-  try {
-    await apiFetch('/catalogos/' + encodeURIComponent(id) + '/grupos', {
-      method: 'PUT',
-      body: JSON.stringify({ grupos })
-    });
-    await renderCatalogosAdmin();
-  } catch (err) {
-    alert('No se pudieron actualizar los grupos: ' + err.message);
-  }
-}
-
-async function handleEliminarCatalogo(id, tipo) {
-  const etiqueta = tipo === 'materia' ? 'esta materia' : 'este profesor';
-  if (!confirm('¿Eliminar ' + etiqueta + ' de las opciones disponibles? Los registros anteriores no cambiarán.')) return;
-  try {
-    await apiFetch('/catalogos/' + encodeURIComponent(id), { method: 'DELETE' });
-    await renderCatalogosAdmin();
-  } catch (err) {
-    alert('No se pudo eliminar: ' + err.message);
   }
 }
 
