@@ -412,7 +412,10 @@ async function guardarImportacionPdf() {
     errorEl.classList.add('show'); return;
   }
   try {
-    const data = await apiFetch('/catalogos/asignaciones', { method: 'POST', body: JSON.stringify({ registros }) });
+    const data = await apiFetch('/catalogos/asignaciones', {
+      method: 'POST',
+      body: JSON.stringify({ registros, reemplazarGrupos: true })
+    });
     successEl.textContent = data.guardados + ' registros guardados correctamente.';
     successEl.classList.add('show'); importacionPdf = [];
     document.getElementById('pdfDropText').textContent = 'Arrastra aquí un PDF o haz clic para seleccionarlo';

@@ -37,7 +37,7 @@ function esIngles(materia) {
 }
 
 async function extraerHorarioPdf(buffer) {
-  const filas = new Map();
+  const filas = [];
   let grupo = '';
   await pdfParse(buffer, {
     pagerender: async (page) => {
@@ -49,14 +49,26 @@ async function extraerHorarioPdf(buffer) {
       if (!grupo) {
         grupo = items.map(i => i.texto.toUpperCase()).find(t => GRUPO_VALIDO.test(t)) || '';
       }
-      const encabezado = items.find(i => i.texto === 'Profesores');
-      if (!encabezado) return '';
+      const encabezadoProfesor = items.find(i => i.texto === 'Profesores');
+      const encabezadoMateria = items.find(i => i.texto === 'Materias');
+      if (!encabezadoProfesor || !encabezadoMateria) return '';
 
-      const candidatos = items.filter(i => i.y < encabezado.y - 2 && i.x > 90);
+      const candidatos = items.filter(i => i.y < encabezadoProfesor.y - 2 && i.x > 90);
+      const filasPagina = new Map();
       for (const item of candidatos) {
         const clave = Math.round(item.y * 2) / 2;
-        if (!filas.has(clave)) filas.set(clave, []);
-        filas.get(clave).push(item);
+        if (!filasPagina.has(clave)) filasPagina.set(clave, []);
+        filasPagina.get(clave).push(item);
+      }
+      for (const itemsFila of filasPagina.values()) {
+        if (itemsFila.length < 2) continue;
+        const profesorItem = [...itemsFila].sort((a, b) =>
+          Math.abs(a.x - encabezadoProfesor.x) - Math.abs(b.x - encabezadoProfesor.x)
+        )[0];
+        const materiaItem = [...itemsFila].filter(i => i !== profesorItem).sort((a, b) =>
+          Math.abs(a.x - encabezadoMateria.x) - Math.abs(b.x - encabezadoMateria.x)
+        )[0];
+        if (profesorItem && materiaItem) filas.push({ profesorItem, materiaItem });
       }
       return '';
     }
@@ -65,11 +77,7 @@ async function extraerHorarioPdf(buffer) {
   if (!grupo) throw new Error('No se encontró un código de grupo válido en el PDF.');
   const registros = [];
   let profesorAnterior = '';
-  for (const items of [...filas.values()].sort((a, b) => b[0].y - a[0].y)) {
-    const profesorItem = items.filter(i => i.x < 300).sort((a, b) => a.x - b.x)[0];
-    const materiaItem = items.filter(i => i.x >= 300).sort((a, b) => a.x - b.x)[0];
-    if (!profesorItem || !materiaItem) continue;
-
+  for (const { profesorItem, materiaItem } of filas.sort((a, b) => b.profesorItem.y - a.profesorItem.y)) {
     let profesor = profesorItem.texto;
     if (/^['’]{2}$/.test(profesor.replace(/\s/g, ''))) profesor = profesorAnterior;
     if (!profesor) continue;
@@ -130,6 +138,14 @@ router.post('/asignaciones', requiereRol('admin'), async (req, res) => {
   try { registros = entrada.map(validarAsignacion); }
   catch (err) { return res.status(400).json({ error: err.message }); }
 
+  // Al reimportar un horario, sustituye las asignaciones anteriores de esos
+  // grupos. Esto evita conservar filas viejas o campos cruzados de otro formato.
+  const reemplazarGrupos = req.body.reemplazarGrupos === true;
+  if (reemplazarGrupos) {
+    const grupos = [...new Set(registros.map(registro => registro.grupo))];
+    await Asignacion.deleteMany({ grupo: { $in: grupos } });
+  }
+
   for (const registro of registros) {
     await asegurarCatalogos(registro);
     await Asignacion.findOneAndUpdate(
@@ -137,6 +153,14 @@ router.post('/asignaciones', requiereRol('admin'), async (req, res) => {
       registro,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+  }
+
+  // El catálogo es una vista auxiliar. Después de sustituir horarios se
+  // reconstruye desde las asignaciones vigentes para retirar valores cruzados.
+  if (reemplazarGrupos) {
+    const vigentes = await Asignacion.find({});
+    await Catalogo.deleteMany({});
+    for (const asignacion of vigentes) await asegurarCatalogos(asignacion);
   }
   res.json({ ok: true, guardados: registros.length });
 });

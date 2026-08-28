@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Bitácora · Control de clases</title>
-<link rel="icon" type="image/png" href="./assets/logo-utcj.png">
+<link rel="icon" type="image/png" href="./assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -204,7 +204,7 @@
 
       <div class="card" id="importadorPdf">
         <p class="card-label">Importar horario desde PDF</p>
-        <p class="hint">Carga un archivo por vez. Inglés y su profesor se omiten automáticamente.</p>
+        <p class="hint">Carga un archivo por vez. Inglés se omite y, si el grupo ya existe, sus asignaciones se reemplazan.</p>
         <div class="pdf-drop-zone" id="pdfDropZone">
           <input type="file" id="pdfArchivo" accept="application/pdf,.pdf" onchange="seleccionarPdf(this.files)">
           <span id="pdfDropText">Arrastra aquí un PDF o haz clic para seleccionarlo</span>
@@ -384,6 +384,6 @@
   </div>
 </div>
 
-<script src="./app.js?v=8"></script>
+<script src="./app.js?v=9"></script>
 </body>
 </html>
