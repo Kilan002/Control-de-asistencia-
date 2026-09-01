@@ -46,6 +46,14 @@ function filtrarLista(inputId, contenedorId, vacioId) {
   vacio.style.display = consulta && filas.length > 0 && visibles === 0 ? 'block' : 'none';
 }
 
+function limpiarBusqueda(inputId, contenedorId, vacioId) {
+  const entrada = document.getElementById(inputId);
+  if (!entrada) return;
+  entrada.value = '';
+  filtrarLista(inputId, contenedorId, vacioId);
+  entrada.focus();
+}
+
 function abrirMensajeModal({ titulo, mensaje, confirmar = false, textoAceptar = 'Aceptar', peligro = false }) {
   document.getElementById('mensajeModalTitulo').textContent = titulo;
   document.getElementById('mensajeModalTexto').textContent = mensaje;

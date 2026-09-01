@@ -209,7 +209,18 @@
   .pdf-record input{margin:0; min-width:0;}
   .pdf-record button,.assignment-row button{width:auto; padding:8px 10px;}
   .assignment-row{cursor:default;}
-  .search-box{margin:8px 0 12px; padding-left:38px; background-color:var(--surface); background-image:linear-gradient(45deg,transparent 46%,var(--text-soft) 47%,var(--text-soft) 53%,transparent 54%),radial-gradient(circle at 14px 13px,transparent 6px,var(--text-soft) 6.5px,var(--text-soft) 7.5px,transparent 8px); background-size:8px 8px,28px 28px; background-position:20px 21px,0 0; background-repeat:no-repeat;}
+  .search-control{position:relative; margin:10px 0 14px;}
+  .search-control::before{content:""; position:absolute; z-index:1; left:16px; top:50%; width:11px; height:11px; border:2px solid var(--text-soft); border-radius:50%; transform:translateY(-60%); pointer-events:none; transition:border-color .15s ease;}
+  .search-control::after{content:""; position:absolute; z-index:1; left:27px; top:55%; width:7px; height:2px; border-radius:2px; background:var(--text-soft); transform:rotate(45deg); transform-origin:left center; pointer-events:none; transition:background .15s ease;}
+  .search-control:focus-within::before{border-color:var(--utcj-green);}
+  .search-control:focus-within::after{background:var(--utcj-green);}
+  .search-box{width:100%; margin:0; padding:12px 42px 12px 45px; border:1px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#fff 0%,#fafcf9 100%); color:var(--text); font-size:13.5px; box-shadow:0 2px 8px rgba(15,46,32,.05); transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;}
+  .search-box:hover{border-color:#c7cec5;}
+  .search-box:focus{outline:none; border-color:var(--utcj-green); background:#fff; box-shadow:0 0 0 3px rgba(31,138,76,.12),0 4px 12px rgba(15,46,32,.07);}
+  .search-box::-webkit-search-cancel-button{display:none;}
+  .search-clear{position:absolute; z-index:2; right:8px; top:50%; width:30px; height:30px; padding:0; border-radius:50%; background:transparent; color:var(--text-soft); font-size:19px; line-height:1; transform:translateY(-50%); opacity:1; transition:background .15s ease,color .15s ease,opacity .15s ease;}
+  .search-clear:hover{background:var(--bg); color:var(--ink);}
+  .search-box:placeholder-shown + .search-clear{opacity:0; pointer-events:none;}
   .search-empty{display:none; margin:0 0 10px;}
   .banner-info{background:#eef7f2; color:var(--utcj-green-dark); border:1px solid #b9ddc7;}
   .detail-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}

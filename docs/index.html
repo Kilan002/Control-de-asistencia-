@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=8">
+<link rel="stylesheet" href="./styles.css?v=9">
 </head>
 <body class="login-mode">
 <div class="device" id="app">
@@ -96,7 +96,7 @@
     <!-- ===================== HISTORIAL ALUMNO ===================== -->
     <section class="view" id="view-historial">
       <button class="back-link" onclick="goTo('home')">← volver</button>
-      <input class="search-box" type="search" id="buscarHistorial" placeholder="Buscar por materia, profesor o estado" oninput="filtrarLista('buscarHistorial','historialList','sinHistorial')">
+      <div class="search-control"><input class="search-box" type="search" id="buscarHistorial" placeholder="Buscar por materia, profesor o estado" oninput="filtrarLista('buscarHistorial','historialList','sinHistorial')"><button class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda('buscarHistorial','historialList','sinHistorial')">×</button></div>
       <p class="hint search-empty" id="sinHistorial">No se encontraron registros.</p>
       <div class="card" id="historialList">
         <p class="card-label">Mis registros</p>
@@ -232,7 +232,7 @@
 
       <div class="card">
         <p class="card-label">Asignaciones registradas</p>
-        <input class="search-box" type="search" id="buscarAsignaciones" placeholder="Buscar grupo, materia o profesor" oninput="filtrarLista('buscarAsignaciones','listaAsignaciones','sinAsignaciones')">
+        <div class="search-control"><input class="search-box" type="search" id="buscarAsignaciones" placeholder="Buscar grupo, materia o profesor" oninput="filtrarLista('buscarAsignaciones','listaAsignaciones','sinAsignaciones')"><button class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda('buscarAsignaciones','listaAsignaciones','sinAsignaciones')">×</button></div>
         <p class="hint search-empty" id="sinAsignaciones">No se encontraron asignaciones.</p>
         <div id="listaAsignaciones"><p class="hint">Cargando...</p></div>
       </div>
@@ -269,7 +269,7 @@
 
       <div class="card">
         <p class="card-label">Usuarios dados de alta</p>
-        <input class="search-box" type="search" id="buscarUsuarios" placeholder="Buscar nombre, matrícula, grupo o rol" oninput="filtrarLista('buscarUsuarios','listaUsuarios','sinUsuarios')">
+        <div class="search-control"><input class="search-box" type="search" id="buscarUsuarios" placeholder="Buscar nombre, matrícula, grupo o rol" oninput="filtrarLista('buscarUsuarios','listaUsuarios','sinUsuarios')"><button class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda('buscarUsuarios','listaUsuarios','sinUsuarios')">×</button></div>
         <p class="hint search-empty" id="sinUsuarios">No se encontraron usuarios.</p>
         <div id="listaUsuarios"><p class="hint">Aún no hay usuarios.</p></div>
       </div>
@@ -280,7 +280,7 @@
       <button class="back-link" onclick="goTo('admin-home')">← volver</button>
       <div class="card">
         <p class="card-label">Todos los registros</p>
-        <input class="search-box" type="search" id="buscarRegistros" placeholder="Buscar materia, profesor, matrícula o estado" oninput="filtrarLista('buscarRegistros','listaRegistrosAdmin','sinRegistrosAdmin')">
+        <div class="search-control"><input class="search-box" type="search" id="buscarRegistros" placeholder="Buscar materia, profesor, matrícula o estado" oninput="filtrarLista('buscarRegistros','listaRegistrosAdmin','sinRegistrosAdmin')"><button class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda('buscarRegistros','listaRegistrosAdmin','sinRegistrosAdmin')">×</button></div>
         <p class="hint search-empty" id="sinRegistrosAdmin">No se encontraron registros.</p>
         <div id="listaRegistrosAdmin"><p class="hint">Todavía no hay registros capturados.</p></div>
       </div>
@@ -345,7 +345,7 @@
       <button class="back-link" onclick="goTo('admin-home')">← volver</button>
       <div class="card">
         <p class="card-label">Registro de accesos</p>
-        <input class="search-box" type="search" id="buscarAccesos" placeholder="Buscar matrícula, resultado o fecha" oninput="filtrarLista('buscarAccesos','listaAccesos','sinAccesos')">
+        <div class="search-control"><input class="search-box" type="search" id="buscarAccesos" placeholder="Buscar matrícula, resultado o fecha" oninput="filtrarLista('buscarAccesos','listaAccesos','sinAccesos')"><button class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda('buscarAccesos','listaAccesos','sinAccesos')">×</button></div>
         <p class="hint search-empty" id="sinAccesos">No se encontraron accesos.</p>
         <div id="listaAccesos"><p class="hint">Aún no hay accesos registrados.</p></div>
       </div>
@@ -403,6 +403,6 @@
   </div>
 </div>
 
-<script src="./app.js?v=11"></script>
+<script src="./app.js?v=12"></script>
 </body>
 </html>
