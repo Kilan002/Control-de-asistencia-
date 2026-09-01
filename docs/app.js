@@ -30,6 +30,22 @@ function escapeHtml(str) {
   }[c]));
 }
 
+function filtrarLista(inputId, contenedorId, vacioId) {
+  const entrada = document.getElementById(inputId);
+  const contenedor = document.getElementById(contenedorId);
+  const vacio = document.getElementById(vacioId);
+  if (!entrada || !contenedor || !vacio) return;
+  const consulta = textoComparable(entrada.value);
+  const filas = [...contenedor.querySelectorAll('.list-row')];
+  let visibles = 0;
+  for (const fila of filas) {
+    const coincide = !consulta || textoComparable(fila.textContent).includes(consulta);
+    fila.style.display = coincide ? '' : 'none';
+    if (coincide) visibles++;
+  }
+  vacio.style.display = consulta && filas.length > 0 && visibles === 0 ? 'block' : 'none';
+}
+
 function abrirMensajeModal({ titulo, mensaje, confirmar = false, textoAceptar = 'Aceptar', peligro = false }) {
   document.getElementById('mensajeModalTitulo').textContent = titulo;
   document.getElementById('mensajeModalTexto').textContent = mensaje;
@@ -447,6 +463,7 @@ async function renderAsignacionesImportadas() {
     </div>`).join('');
     cont.querySelectorAll('.editar-asignacion').forEach(boton => boton.addEventListener('click', () => editarAsignacion(registros[Number(boton.dataset.index)])));
     cont.querySelectorAll('.eliminar-asignacion').forEach(boton => boton.addEventListener('click', () => eliminarAsignacion(registros[Number(boton.dataset.index)])));
+    filtrarLista('buscarAsignaciones', 'listaAsignaciones', 'sinAsignaciones');
   } catch (err) { cont.innerHTML = '<p class="hint">' + escapeHtml(err.message) + '</p>'; }
 }
 
@@ -748,6 +765,7 @@ async function renderHistorial() {
       <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${escapeHtml(v.horaInicio)}–${escapeHtml(v.horaFin)}</span>
     </div>`;
   }).join('');
+  filtrarLista('buscarHistorial', 'historialList', 'sinHistorial');
 }
 
 async function abrirDetalleAlumno(registroId) {
@@ -842,6 +860,7 @@ async function renderUsuarios() {
       </div>
     </div>`;
   }).join('');
+  filtrarLista('buscarUsuarios', 'listaUsuarios', 'sinUsuarios');
 }
 
 async function handleEliminarUsuario(matricula) {
@@ -890,6 +909,7 @@ async function renderRegistrosAdmin() {
       <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${escapeHtml(v.horaInicio)}–${escapeHtml(v.horaFin)}</span>
     </div>`;
   }).join('');
+  filtrarLista('buscarRegistros', 'listaRegistrosAdmin', 'sinRegistrosAdmin');
 }
 
 async function abrirEdicion(registroId) {
@@ -1013,8 +1033,10 @@ async function renderAccesos() {
   cont.innerHTML = accesos.map(a => {
     const fecha = fechaDe(a.timestamp);
     return `<div class="list-row">
-      <strong style="font-family:var(--font-mono); font-size:13px;">${escapeHtml(a.matricula.toUpperCase())}</strong>
+      <div><strong style="font-family:var(--font-mono); font-size:13px;">${escapeHtml(a.matricula.toUpperCase())}</strong>
+        <div class="meta">${a.resultado === 'ok' ? 'Acceso correcto' : 'Acceso fallido'}</div></div>
       <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${fecha ? fecha.toLocaleString('es-MX') : '—'}</span>
     </div>`;
   }).join('');
+  filtrarLista('buscarAccesos', 'listaAccesos', 'sinAccesos');
 }

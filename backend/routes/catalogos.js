@@ -58,6 +58,8 @@ const MATERIAS_COMPLETAS = {
   'Des Pens TD': 'Desarrollo del Pensamiento y Toma de Decisiones',
   'Sis Neum Hid': 'Sistemas Neumáticos e Hidráulicos',
   'Est Prop Mat': 'Estructura y Propiedades de los Materiales',
+  'Est Pro Mat': 'Estructura y Propiedad de los Materiales',
+  'Sis Hid y Ne': 'Sistemas Hidráulicos y Neumáticos',
   'CLP': 'Controladores Lógicos Programables',
   'LEAD': 'Liderazgo de Equipos de Alto Desempeño',
   'Imp Sist Aut': 'Implementación de Sistemas Automatizados'
