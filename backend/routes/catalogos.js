@@ -14,6 +14,37 @@ function normalizar(nombre) {
   return nombre.trim().replace(/\s+/g, ' ').toLocaleLowerCase('es-MX');
 }
 
+function normalizarComparacion(nombre) {
+  return normalizar(nombre).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function nivelFinal(nombre) {
+  return normalizarComparacion(nombre).match(/(?:^|\s)([ivx]+|\d+)$/)?.[1] || '';
+}
+
+function distanciaLevenshtein(a, b) {
+  const fila = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let anterior = fila[0]; fila[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const temporal = fila[j];
+      fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, anterior + (a[i - 1] === b[j - 1] ? 0 : 1));
+      anterior = temporal;
+    }
+  }
+  return fila[b.length];
+}
+
+function sonMateriasSimilares(a, b) {
+  const na = normalizarComparacion(a), nb = normalizarComparacion(b);
+  if (!na || !nb) return false;
+  if (na === nb) return normalizar(a) !== normalizar(b);
+  const nivelA = nivelFinal(a), nivelB = nivelFinal(b);
+  if (nivelA && nivelB && nivelA !== nivelB) return false;
+  return 1 - distanciaLevenshtein(na, nb) / Math.max(na.length, nb.length) >= 0.84;
+}
+
 const uploadPdf = multer({
   storage: multer.memoryStorage(),
   limits: { files: 1, fileSize: 5 * 1024 * 1024 },
@@ -118,6 +149,19 @@ async function asegurarCatalogos({ grupo, profesor, materia }) {
   );
 }
 
+async function reconstruirCatalogos() {
+  const vigentes = await Asignacion.find({});
+  await Catalogo.deleteMany({});
+  for (const asignacion of vigentes) await asegurarCatalogos(asignacion);
+}
+
+async function buscarMateriaSimilar(registro, excluirId = null) {
+  const filtro = { grupo: registro.grupo };
+  if (excluirId) filtro._id = { $ne: excluirId };
+  const existentes = await Asignacion.find(filtro, { materia: 1, profesor: 1, grupo: 1 });
+  return existentes.find(item => sonMateriasSimilares(registro.materia, item.materia));
+}
+
 router.post('/importar-pdf', requiereRol('admin'), uploadPdf.single('archivo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Selecciona un solo archivo PDF.' });
   try {
@@ -137,10 +181,27 @@ router.post('/asignaciones', requiereRol('admin'), async (req, res) => {
   let registros;
   try { registros = entrada.map(validarAsignacion); }
   catch (err) { return res.status(400).json({ error: err.message }); }
+  for (let i = 0; i < registros.length; i++) {
+    const similarInterna = registros.slice(i + 1).find(otra =>
+      otra.grupo === registros[i].grupo && sonMateriasSimilares(registros[i].materia, otra.materia)
+    );
+    if (similarInterna) return res.status(400).json({
+      error: `El archivo contiene materias muy parecidas: “${registros[i].materia}” y “${similarInterna.materia}”.`
+    });
+  }
 
   // Al reimportar un horario, sustituye las asignaciones anteriores de esos
   // grupos. Esto evita conservar filas viejas o campos cruzados de otro formato.
   const reemplazarGrupos = req.body.reemplazarGrupos === true;
+  if (!reemplazarGrupos) {
+    for (const registro of registros) {
+      const similar = await buscarMateriaSimilar(registro);
+      if (similar) return res.status(409).json({
+        error: `La materia se parece a “${similar.materia}”, ya registrada para ${similar.grupo}. Revisa el nombre.`,
+        similar
+      });
+    }
+  }
   if (reemplazarGrupos) {
     const grupos = [...new Set(registros.map(registro => registro.grupo))];
     await Asignacion.deleteMany({ grupo: { $in: grupos } });
@@ -158,9 +219,7 @@ router.post('/asignaciones', requiereRol('admin'), async (req, res) => {
   // El catálogo es una vista auxiliar. Después de sustituir horarios se
   // reconstruye desde las asignaciones vigentes para retirar valores cruzados.
   if (reemplazarGrupos) {
-    const vigentes = await Asignacion.find({});
-    await Catalogo.deleteMany({});
-    for (const asignacion of vigentes) await asegurarCatalogos(asignacion);
+    await reconstruirCatalogos();
   }
   res.json({ ok: true, guardados: registros.length });
 });
@@ -169,10 +228,26 @@ router.put('/asignaciones/:id', requiereRol('admin'), async (req, res) => {
   let registro;
   try { registro = validarAsignacion(req.body); }
   catch (err) { return res.status(400).json({ error: err.message }); }
+  const duplicada = await Asignacion.findOne({
+    _id: { $ne: req.params.id }, grupo: registro.grupo, materiaNormalizada: registro.materiaNormalizada
+  });
+  if (duplicada) return res.status(409).json({ error: 'Esa materia ya está registrada para el mismo grupo.' });
+  const similar = await buscarMateriaSimilar(registro, req.params.id);
+  if (similar) return res.status(409).json({
+    error: `La materia se parece a “${similar.materia}”, ya registrada para ${similar.grupo}. Revisa el nombre.`,
+    similar
+  });
   await asegurarCatalogos(registro);
   const actualizado = await Asignacion.findByIdAndUpdate(req.params.id, registro, { new: true, runValidators: true });
   if (!actualizado) return res.status(404).json({ error: 'La asignación ya no existe.' });
   res.json(actualizado);
+});
+
+router.delete('/asignaciones/:id', requiereRol('admin'), async (req, res) => {
+  const eliminada = await Asignacion.findByIdAndDelete(req.params.id);
+  if (!eliminada) return res.status(404).json({ error: 'La asignación ya no existe.' });
+  await reconstruirCatalogos();
+  res.json({ ok: true });
 });
 
 // Cualquier usuario autenticado necesita consultar estas opciones al registrar.
@@ -202,3 +277,4 @@ router.get('/', async (req, res) => {
 module.exports = router;
 // Se expone para las pruebas automáticas del importador sin abrir el servidor.
 module.exports.extraerHorarioPdf = extraerHorarioPdf;
+module.exports.sonMateriasSimilares = sonMateriasSimilares;

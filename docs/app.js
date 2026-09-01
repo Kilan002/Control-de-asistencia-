@@ -16,6 +16,7 @@ let editAsistenciaVal = null;
 let editContext = null;         // { registroId }
 let catalogosCache = { materias: [], profesores: [], asignaciones: [] };
 let importacionPdf = [];
+let asignacionesAdminCache = [];
 let asignacionEditando = null;
 let mensajeModalResolver = null;
 
@@ -110,7 +111,7 @@ function guardarSesionLocal() {
 }
 
 function goTo(viewName) {
-  const VISTAS_ALUMNO = ['home', 'registro', 'historial'];
+  const VISTAS_ALUMNO = ['home', 'registro', 'historial', 'detalleRegistro'];
   const VISTAS_ADMIN = ['admin-home', 'adminUsuarios', 'adminRegistros', 'adminEditar', 'adminAccesos', 'adminCatalogos'];
 
   if (viewName !== 'login' && viewName !== 'cambiarPassword' && !session) {
@@ -134,6 +135,7 @@ function goTo(viewName) {
     home:            ['Inicio', 'Bitácora', 'Registro por grupo'],
     registro:        ['Nuevo registro', 'Bitácora', 'Captura la clase según el horario'],
     historial:       ['Mis registros', 'Bitácora', 'Consulta lo que ya capturaste'],
+    detalleRegistro: ['Detalle del registro', 'Bitácora', 'Consulta de solo lectura'],
     'admin-home':    ['Panel', 'Bitácora Administrador', 'Gestión de usuarios y registros'],
     adminUsuarios:   ['Usuarios', 'Bitácora Administrador', 'Alta de alumnos y administradores'],
     adminRegistros:  ['Registros', 'Bitácora Administrador', 'Todos los grupos'],
@@ -320,7 +322,12 @@ function actualizarProfesoresPorMateria(materiaForzada = '', profesorActual = ''
     profesorActual
   );
   const select = document.getElementById('maestro');
-  if (select) select.disabled = !materia;
+  if (select && profesores.length === 1) {
+    select.value = profesores[0].nombre;
+    select.disabled = true;
+  } else if (select) {
+    select.disabled = !materia;
+  }
 }
 
 async function renderCatalogosAdmin() {
@@ -428,14 +435,79 @@ async function renderAsignacionesImportadas() {
   cont.innerHTML = '<p class="hint">Cargando...</p>';
   try {
     const registros = await apiFetch('/catalogos/asignaciones');
+    asignacionesAdminCache = registros;
     if (!registros.length) { cont.innerHTML = '<p class="hint">Todavía no hay registros importados.</p>'; return; }
-    cont.innerHTML = registros.map(r => `<div class="list-row assignment-row">
+    cont.innerHTML = registros.map((r, i) => `<div class="list-row assignment-row">
       <div class="catalogo-item-main"><strong>${escapeHtml(r.grupo)}</strong> · ${escapeHtml(r.materia)}
         <div class="meta">${escapeHtml(r.profesor)}</div></div>
-      ${session.rol === 'admin' ? `<button type="button" class="btn-ghost editar-asignacion" data-id="${r._id}">Editar</button>` : ''}
+      ${session.rol === 'admin' ? `<div class="catalogo-actions">
+        <button type="button" class="btn-ghost editar-asignacion" data-index="${i}">Editar</button>
+        <button type="button" class="btn-danger eliminar-asignacion" data-index="${i}">Eliminar</button>
+      </div>` : ''}
     </div>`).join('');
-    cont.querySelectorAll('.editar-asignacion').forEach((boton, i) => boton.addEventListener('click', () => editarAsignacion(registros[i])));
+    cont.querySelectorAll('.editar-asignacion').forEach(boton => boton.addEventListener('click', () => editarAsignacion(registros[Number(boton.dataset.index)])));
+    cont.querySelectorAll('.eliminar-asignacion').forEach(boton => boton.addEventListener('click', () => eliminarAsignacion(registros[Number(boton.dataset.index)])));
   } catch (err) { cont.innerHTML = '<p class="hint">' + escapeHtml(err.message) + '</p>'; }
+}
+
+async function eliminarAsignacion(registro) {
+  const confirmado = await confirmarAccion(
+    'Eliminar asignación',
+    `¿Eliminar “${registro.materia}” del grupo ${registro.grupo}?\nLos registros de asistencia anteriores no se borrarán.`,
+    'Eliminar asignación'
+  );
+  if (!confirmado) return;
+  try {
+    await apiFetch('/catalogos/asignaciones/' + encodeURIComponent(registro._id), { method: 'DELETE' });
+    await renderCatalogosAdmin();
+  } catch (err) {
+    await mostrarMensaje('No se pudo eliminar', err.message);
+  }
+}
+
+function textoComparable(valor) {
+  return valor.toLocaleLowerCase('es-MX').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function distanciaTexto(a, b) {
+  const fila = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let anterior = fila[0]; fila[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const temporal = fila[j];
+      fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, anterior + (a[i - 1] === b[j - 1] ? 0 : 1));
+      anterior = temporal;
+    }
+  }
+  return fila[b.length];
+}
+
+function detectarMateriaSimilarManual() {
+  const grupo = document.getElementById('catalogoGrupo')?.value.trim().toUpperCase() || '';
+  const materia = document.getElementById('catalogoMateria')?.value.trim() || '';
+  const profesorEl = document.getElementById('catalogoProfesor');
+  const aviso = document.getElementById('catalogoSimilar');
+  if (!aviso) return;
+  aviso.textContent = ''; aviso.classList.remove('show');
+  if (!grupo || !materia) return;
+  const buscada = textoComparable(materia);
+  const delGrupo = asignacionesAdminCache.filter(a => a.grupo === grupo);
+  const exacta = delGrupo.find(a => textoComparable(a.materia) === buscada);
+  if (exacta) {
+    profesorEl.value = exacta.profesor;
+    aviso.textContent = `Ya existe “${exacta.materia}”. Se colocó automáticamente su profesor.`;
+    aviso.classList.add('show'); return;
+  }
+  const similar = delGrupo.find(a => {
+    const existente = textoComparable(a.materia);
+    const nivelBuscado = buscada.match(/(?:^|\s)([ivx]+|\d+)$/)?.[1] || '';
+    const nivelExistente = existente.match(/(?:^|\s)([ivx]+|\d+)$/)?.[1] || '';
+    if (nivelBuscado && nivelExistente && nivelBuscado !== nivelExistente) return false;
+    return buscada.length >= 5 && 1 - distanciaTexto(buscada, existente) / Math.max(buscada.length, existente.length) >= 0.84;
+  });
+  aviso.textContent = similar ? `Materia similar encontrada: “${similar.materia}”. Revisa el nombre antes de guardar.` : '';
+  aviso.classList.toggle('show', Boolean(similar));
 }
 
 function editarAsignacion(registro) {
@@ -518,6 +590,7 @@ async function handleAgregarAsignacion() {
     grupoEl.value = '';
     materiaEl.value = '';
     profesorEl.value = '';
+    document.getElementById('catalogoSimilar').classList.remove('show');
     successEl.classList.add('show');
     await renderCatalogosAdmin();
   } catch (err) {
@@ -630,6 +703,7 @@ function resetForm() {
   document.getElementById('evidenceLabel').textContent = 'Toca para tomar o subir una foto';
   document.getElementById('evidenceBox').classList.remove('required-missing');
   document.getElementById('thumbs').innerHTML = '';
+  actualizarProfesoresPorMateria();
   updateEvidenceRequirement();
 }
 
@@ -666,7 +740,7 @@ async function renderHistorial() {
   const asistLabel = { normal: 'Clase normal', retardo: 'Retardo', falta: 'Falta' };
   cont.innerHTML = '<p class="card-label">Mis registros</p>' + registros.map(r => {
     const v = ultimaVersion(r);
-    return `<div class="list-row">
+    return `<div class="list-row" onclick="abrirDetalleAlumno('${r._id}')">
       <div>
         <strong style="font-family:var(--font-display); font-size:14px;">${escapeHtml(r.materia)}</strong>
         <div class="meta">${escapeHtml(r.maestro)} · ${asistLabel[v.asistencia]}${v.evidencia ? ' · 📷' : ''}${r.versiones.length > 1 ? ' · editado ' + (r.versiones.length - 1) + '×' : ''}</div>
@@ -674,6 +748,31 @@ async function renderHistorial() {
       <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-soft);">${escapeHtml(v.horaInicio)}–${escapeHtml(v.horaFin)}</span>
     </div>`;
   }).join('');
+}
+
+async function abrirDetalleAlumno(registroId) {
+  const cont = document.getElementById('detalleRegistroContenido');
+  cont.innerHTML = '<p class="hint">Cargando...</p>';
+  goTo('detalleRegistro');
+  try {
+    const registro = await apiFetch('/registros/' + encodeURIComponent(registroId));
+    const v = ultimaVersion(registro);
+    const asistencia = { normal: 'Clase normal', retardo: 'Retardo', falta: 'Falta' }[v.asistencia] || v.asistencia;
+    const capturado = fechaDe(v.capturadoEn);
+    cont.innerHTML = `<div class="detail-grid">
+      <div><span>Materia</span><strong>${escapeHtml(registro.materia)}</strong></div>
+      <div><span>Profesor</span><strong>${escapeHtml(registro.maestro)}</strong></div>
+      <div><span>Grupo</span><strong>${escapeHtml(registro.grupo || '—')}</strong></div>
+      <div><span>Horario</span><strong>${escapeHtml(v.horaInicio)}–${escapeHtml(v.horaFin)}</strong></div>
+      <div><span>Estado</span><strong>${escapeHtml(asistencia)}</strong></div>
+      <div><span>Capturado</span><strong>${capturado ? escapeHtml(capturado.toLocaleString('es-MX')) : '—'}</strong></div>
+    </div>
+    <div class="detail-notes"><span>Observaciones</span><p>${escapeHtml(v.observaciones || 'Sin observaciones.')}</p></div>
+    ${v.evidencia ? `<div class="detail-evidence"><span>Evidencia</span><img src="${escapeHtml(v.evidencia)}" alt="Evidencia del registro"></div>` : '<p class="hint">Este registro no contiene evidencia.</p>'}
+    <p class="hint">Vista de solo lectura · ${registro.versiones.length} ${registro.versiones.length === 1 ? 'versión' : 'versiones'}</p>`;
+  } catch (err) {
+    cont.innerHTML = '<p class="hint">' + escapeHtml(err.message) + '</p>';
+  }
 }
 
 /* ---------------- ADMIN: USUARIOS ---------------- */

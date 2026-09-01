@@ -27,10 +27,14 @@ router.get('/', requiereRol('admin', 'admin_lectura'), async (req, res) => {
   res.json(registros);
 });
 
-// GET /registros/:id — un solo registro, para abrir el formulario de edición
-router.get('/:id', requiereRol('admin', 'admin_lectura'), async (req, res) => {
+// GET /registros/:id — administradores o el alumno dueño del registro
+router.get('/:id', async (req, res) => {
   const registro = await Registro.findById(req.params.id);
   if (!registro) return res.status(404).json({ error: 'No existe ese registro.' });
+  const esAdmin = ['admin', 'admin_lectura'].includes(req.usuario.rol);
+  if (!esAdmin && registro.matricula !== req.usuario.matricula) {
+    return res.status(403).json({ error: 'No tienes permiso para consultar este registro.' });
+  }
   res.json(registro);
 });
 

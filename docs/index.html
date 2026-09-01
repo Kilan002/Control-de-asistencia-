@@ -17,7 +17,7 @@
     <div class="masthead-top">
       <img
         class="utcj-logo"
-        src="./assets/logo-utcj.png"
+        src="./assets/logo.png"
         alt="Logo de la Universidad Tecnológica de Ciudad Juárez"
       >
 
@@ -102,8 +102,16 @@
       </div>
     </section>
 
+    <!-- ===================== DETALLE DE REGISTRO DEL ALUMNO ===================== -->
+    <section class="view" id="view-detalleRegistro">
+      <button class="back-link" onclick="goTo('historial')">← volver</button>
+      <div class="card">
+        <p class="card-label">Detalle del registro</p>
+        <div id="detalleRegistroContenido"><p class="hint">Selecciona un registro para consultarlo.</p></div>
+      </div>
+    </section>
+
     <!-- ===================== FORMULARIO DE REGISTRO ===================== -->
-     <!-- ===================== AGREGUENLE OPCIONES QUE NO SE QUE MATERIAS TENGAN ===================== -->
     <section class="view" id="view-registro">
       <button class="back-link" onclick="goTo('home')">← volver</button>
 
@@ -188,11 +196,12 @@
         </p>
         <div id="catalogoControles">
           <label for="catalogoGrupo" class="req">Grupo</label>
-          <input type="text" id="catalogoGrupo" maxlength="10" placeholder="SMW11">
+          <input type="text" id="catalogoGrupo" maxlength="10" placeholder="SMW11" oninput="detectarMateriaSimilarManual()">
           <label for="catalogoMateria" class="req">Materia</label>
-          <input type="text" id="catalogoMateria" maxlength="100" placeholder="Nombre de la materia">
+          <input type="text" id="catalogoMateria" maxlength="100" placeholder="Nombre de la materia" oninput="detectarMateriaSimilarManual()">
           <label for="catalogoProfesor" class="req">Profesor</label>
           <input type="text" id="catalogoProfesor" maxlength="100" placeholder="Nombre completo del profesor">
+          <div class="banner banner-info" id="catalogoSimilar"></div>
           <p class="hint">Se guardará con el mismo formato utilizado por el importador de PDF.</p>
           <div class="banner banner-error" id="catalogoError"></div>
           <div class="banner banner-success" id="catalogoSuccess">Asignación agregada.</div>
@@ -384,6 +393,6 @@
   </div>
 </div>
 
-<script src="./app.js?v=9"></script>
+<script src="./app.js?v=10"></script>
 </body>
 </html>
