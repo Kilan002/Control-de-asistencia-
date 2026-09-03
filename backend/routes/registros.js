@@ -3,6 +3,7 @@ const Registro = require('../models/Registro');
 const Asignacion = require('../models/Asignacion');
 const Usuario = require('../models/Usuario');
 const { requiereSesion, requiereRol } = require('../middleware/auth');
+const { notificarFalta } = require('../services/notificaciones');
 
 const router = express.Router();
 router.use(requiereSesion);
@@ -82,6 +83,16 @@ router.post('/', async (req, res) => {
     }]
   });
 
+  // El registro no debe fallar aunque Firebase esté temporalmente fuera de servicio.
+  if (asistencia === 'falta') {
+    notificarFalta({
+      registroId: registro._id,
+      profesor: registro.maestro,
+      materia: registro.materia,
+      grupo: registro.grupo
+    }).catch(error => console.error('No se pudo enviar la notificación de falta:', error.message));
+  }
+
   res.status(201).json(registro);
 });
 
@@ -108,6 +119,15 @@ router.put('/:id', requiereRol('admin'), async (req, res) => {
     capturadoEn: new Date()
   });
   await registro.save();
+
+  if (anterior.asistencia !== 'falta' && asistencia === 'falta') {
+    notificarFalta({
+      registroId: registro._id,
+      profesor: registro.maestro,
+      materia: registro.materia,
+      grupo: registro.grupo
+    }).catch(error => console.error('No se pudo enviar la notificación de falta:', error.message));
+  }
   res.json(registro);
 });
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "818613632446",
+    "project_id": "com-utcj-controlasistencia",
+    "storage_bucket": "com-utcj-controlasistencia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818613632446:android:5f91e41e7d9f603a6a4def",
+        "android_client_info": {
+          "package_name": "com.controldocente.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMuCwucL24M1eW7juwepcsb94yVCBJ2NE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

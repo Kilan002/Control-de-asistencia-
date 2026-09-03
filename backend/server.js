@@ -8,15 +8,27 @@ const usuarioRoutes = require('./routes/usuarios');
 const registroRoutes = require('./routes/registros');
 const accesoRoutes = require('./routes/accesos');
 const catalogoRoutes = require('./routes/catalogos');
+const notificacionRoutes = require('./routes/notificaciones');
 
 const app = express();
 
 // Límite alto porque las fotos de evidencia viajan como base64 dentro del JSON.
 app.use(express.json({ limit: '5mb' }));
 
-// Solo el dominio de tu GitHub Pages puede llamar a esta API.
+// Permite la página publicada y la aplicación Android de Capacitor.
+const origenesPermitidos = [
+  process.env.FRONTEND_ORIGIN,
+  'https://localhost'
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || '*'
+  origin(origen, callback) {
+    // Las llamadas sin Origin (pruebas del servidor) también son válidas.
+    if (!origen || origenesPermitidos.includes(origen) || (!process.env.FRONTEND_ORIGIN && origenesPermitidos.length === 1)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Origen no permitido por CORS.'));
+  }
 }));
 
 app.get('/', (req, res) => res.json({ ok: true, servicio: 'bitacora-backend' }));
@@ -26,6 +38,7 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/registros', registroRoutes);
 app.use('/accesos', accesoRoutes);
 app.use('/catalogos', catalogoRoutes);
+app.use('/notificaciones', notificacionRoutes);
 
 // Cualquier error no atrapado en una ruta cae aquí en vez de tumbar el proceso.
 app.use((err, req, res, next) => {

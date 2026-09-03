@@ -19,6 +19,75 @@ let importacionPdf = [];
 let asignacionesAdminCache = [];
 let asignacionEditando = null;
 let mensajeModalResolver = null;
+let listenersPushInstalados = false;
+
+function obtenerPushNotifications() {
+  return window.Capacitor?.Plugins?.PushNotifications || null;
+}
+
+async function registrarNotificacionesAndroid() {
+  if (!session || !['admin', 'admin_lectura'].includes(session.rol)) return;
+  const push = obtenerPushNotifications();
+  if (!push) return; // La web normal continúa funcionando sin Capacitor.
+
+  if (!listenersPushInstalados) {
+    await push.addListener('registration', async ({ value }) => {
+      localStorage.setItem('push_token', value);
+      try {
+        await apiFetch('/notificaciones/dispositivos', {
+          method: 'POST',
+          body: JSON.stringify({ token: value })
+        });
+      } catch (error) {
+        console.error('No se pudo registrar este dispositivo:', error.message);
+      }
+    });
+
+    await push.addListener('registrationError', error => {
+      console.error('Firebase no pudo registrar las notificaciones:', error);
+    });
+
+    await push.addListener('pushNotificationActionPerformed', ({ notification }) => {
+      const registroId = notification?.data?.registroId;
+      if (!session || !['admin', 'admin_lectura'].includes(session.rol)) return;
+      if (registroId) abrirEdicion(registroId);
+      else goTo('adminRegistros');
+    });
+    listenersPushInstalados = true;
+  }
+
+  if (push.createChannel) {
+    await push.createChannel({
+      id: 'faltas',
+      name: 'Faltas de profesores',
+      description: 'Avisos cuando un grupo registra una falta',
+      importance: 5,
+      visibility: 1,
+      vibration: true
+    });
+  }
+
+  let permiso = await push.checkPermissions();
+  if (permiso.receive === 'prompt' || permiso.receive === 'prompt-with-rationale') {
+    permiso = await push.requestPermissions();
+  }
+  if (permiso.receive === 'granted') await push.register();
+}
+
+function eliminarDispositivoNotificaciones() {
+  const token = localStorage.getItem('push_token');
+  if (!token || !session?.token) return;
+  fetch(API_BASE + '/notificaciones/dispositivos', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + session.token
+    },
+    body: JSON.stringify({ token }),
+    keepalive: true
+  }).catch(() => {});
+  localStorage.removeItem('push_token');
+}
 
 /* ---------------- HELPER: escapar texto antes de insertarlo como HTML ----------------
    Los campos como "nombre" o "grupo" son texto libre que captura un admin;
@@ -258,6 +327,7 @@ async function handleCambiarPassword() {
 }
 
 function handleLogout() {
+  eliminarDispositivoNotificaciones();
   session = null;
   catalogosCache = { materias: [], profesores: [], asignaciones: [] };
   localStorage.removeItem('bitacora_session');
@@ -283,6 +353,9 @@ function afterLogin() {
     document.getElementById('navAdmin').style.display = 'flex';
     document.getElementById('cardNuevoUsuario').style.display = session.rol === 'admin_lectura' ? 'none' : '';
     goTo('admin-home');
+    registrarNotificacionesAndroid().catch(error => {
+      console.error('No se pudieron activar las notificaciones:', error.message);
+    });
   }
 }
 
