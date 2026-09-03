@@ -156,16 +156,16 @@ function goTo(viewName) {
   if (navBtn) navBtn.classList.add('active');
 
   const titles = {
-    home:            ['Inicio', 'Bitácora', 'Registro por grupo'],
-    registro:        ['Nuevo registro', 'Bitácora', 'Captura la clase según el horario'],
-    historial:       ['Mis registros', 'Bitácora', 'Consulta lo que ya capturaste'],
-    detalleRegistro: ['Detalle del registro', 'Bitácora', 'Consulta de solo lectura'],
-    'admin-home':    ['Panel', 'Bitácora Administrador', 'Gestión de usuarios y registros'],
-    adminUsuarios:   ['Usuarios', 'Bitácora Administrador', 'Alta de alumnos y administradores'],
-    adminRegistros:  ['Registros', 'Bitácora Administrador', 'Todos los grupos'],
-    adminEditar:     ['Editar registro', 'Bitácora Administrador', 'Modificación directa'],
-    adminAccesos:    ['Accesos', 'Bitácora Administrador', 'Historial de inicios de sesión'],
-    adminCatalogos:  ['Catálogos', 'Bitácora Administrador', 'Materias, profesores y grupos disponibles']
+    home:            ['Inicio', 'Supervisión Docente', 'Registro por grupo'],
+    registro:        ['Nuevo registro', 'Supervisión Docente', 'Captura la clase según el horario'],
+    historial:       ['Mis registros', 'Supervisión Docente', 'Consulta lo que ya capturaste'],
+    detalleRegistro: ['Detalle del registro', 'Supervisión Docente', 'Consulta de solo lectura'],
+    'admin-home':    ['Panel', 'Supervisión Docente Administrador', 'Gestión de usuarios y registros'],
+    adminUsuarios:   ['Usuarios', 'Supervisión Docente Administrador', 'Alta de alumnos y administradores'],
+    adminRegistros:  ['Registros', 'Supervisión Docente Administrador', 'Todos los grupos'],
+    adminEditar:     ['Editar registro', 'Supervisión Docente Administrador', 'Modificación directa'],
+    adminAccesos:    ['Accesos', 'Supervisión Docente Administrador', 'Historial de inicios de sesión'],
+    adminCatalogos:  ['Catálogos', 'Supervisión Docente Administrador', 'Materias, profesores y grupos disponibles']
   }[viewName];
   if (titles) {
     document.getElementById('mastheadEyebrow').textContent = titles[0];
