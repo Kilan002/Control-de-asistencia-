@@ -5,3 +5,15 @@ android/app/build/
 backend/.env
 *.jks
 *.keystore
+# Compilaciones Android
+android/app/release/
+android/app/build/
+*.apk
+*.aab
+
+# Configuración local de Android Studio
+android/.idea/
+
+# Claves privadas de firma
+*.jks
+*.keystore
