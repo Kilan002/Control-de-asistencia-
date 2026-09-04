@@ -6,7 +6,7 @@
     "androidScheme": "https"
   },
   "android": {
-    "adjustMarginsForEdgeToEdge": "auto"
+    "adjustMarginsForEdgeToEdge": "force"
   },
   "plugins": {
     "PushNotifications": {
