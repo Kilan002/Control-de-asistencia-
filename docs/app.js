@@ -25,7 +25,7 @@ function obtenerPushNotifications() {
   return window.Capacitor?.Plugins?.PushNotifications || null;
 }
 
-async function registrarNotificacionesAndroid() {
+async function registrarNotificacionesMoviles() {
   if (!session || !['admin', 'admin_lectura'].includes(session.rol)) return;
   const push = obtenerPushNotifications();
   if (!push) return; // La web normal continúa funcionando sin Capacitor.
@@ -33,10 +33,11 @@ async function registrarNotificacionesAndroid() {
   if (!listenersPushInstalados) {
     await push.addListener('registration', async ({ value }) => {
       localStorage.setItem('push_token', value);
+      const plataforma = window.Capacitor?.getPlatform?.();
       try {
         await apiFetch('/notificaciones/dispositivos', {
           method: 'POST',
-          body: JSON.stringify({ token: value })
+          body: JSON.stringify({ token: value, plataforma })
         });
       } catch (error) {
         console.error('No se pudo registrar este dispositivo:', error.message);
@@ -353,7 +354,7 @@ function afterLogin() {
     document.getElementById('navAdmin').style.display = 'flex';
     document.getElementById('cardNuevoUsuario').style.display = session.rol === 'admin_lectura' ? 'none' : '';
     goTo('admin-home');
-    registrarNotificacionesAndroid().catch(error => {
+    registrarNotificacionesMoviles().catch(error => {
       console.error('No se pudieron activar las notificaciones:', error.message);
     });
   }

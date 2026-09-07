@@ -15,10 +15,11 @@ const app = express();
 // Límite alto porque las fotos de evidencia viajan como base64 dentro del JSON.
 app.use(express.json({ limit: '5mb' }));
 
-// Permite la página publicada y la aplicación Android de Capacitor.
+// Permite la página publicada y las aplicaciones móviles de Capacitor.
 const origenesPermitidos = [
   process.env.FRONTEND_ORIGIN,
-  'https://localhost'
+  'https://localhost',
+  'capacitor://localhost'
 ].filter(Boolean);
 
 app.use(cors({

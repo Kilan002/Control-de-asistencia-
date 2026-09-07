@@ -57,6 +57,10 @@ async function notificarFalta({ registroId, profesor, materia, grupo }) {
       android: {
         priority: 'high',
         notification: { channelId: 'faltas', sound: 'default' }
+      },
+      apns: {
+        headers: { 'apns-priority': '10' },
+        payload: { aps: { sound: 'default' } }
       }
     });
 

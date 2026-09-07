@@ -46,7 +46,11 @@
   header.masthead{
     background:linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 100%);
     color:#fff;
-    padding:16px 20px 18px;
+    padding:
+      calc(16px + env(safe-area-inset-top, 0px))
+      calc(20px + env(safe-area-inset-right, 0px))
+      18px
+      calc(20px + env(safe-area-inset-left, 0px));
     position:sticky;
     top:0;
     z-index:20;
