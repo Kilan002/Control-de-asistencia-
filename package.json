@@ -5,7 +5,9 @@
   "scripts": {
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
-    "android:build": "npm run android:sync && cd android && ./gradlew assembleDebug"
+    "android:build": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
